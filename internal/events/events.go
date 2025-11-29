@@ -2,29 +2,34 @@ package events
 
 import (
 	"bytes"
-	"encoding/binary"
 	"fmt"
 )
 
 // OpenatEvent должна байт-в-байт совпадать с C-структурой.
 type OpenatEvent struct {
-	Pid      uint32
-	Flags    int32
-	Comm     [16]byte
+	CgroupId uint64   // 8 байт
+	Pid      uint32   // 4 байта
+	Uid      uint32   // 4 байта
+	Gid      uint32   // 4 байта
+	Flags    int32    // 4 байта
+	Dfd      int32    // 4 байта
+	Ret      int32    // 4 байта (Результат)
+	Comm     [16]byte // 16 байт
 	Filename [256]byte
 }
 
-// Unmarshal превращает сырые байты из ядра в структуру Go.
-// Мы вынесли это из main.go, чтобы инкапсулировать логику бинарного чтениия.
-func (e *OpenatEvent) Unmarshal(data []byte) error {
-	return binary.Read(bytes.NewReader(data), binary.LittleEndian, e)
-}
-
-// String реализует интерфейс Stringer для красивого вывода (замена функции printEvent).
 func (e OpenatEvent) String() string {
-	// Очищаем C-строки от нуль-терминаторов
 	comm := string(bytes.TrimRight(e.Comm[:], "\x00"))
 	filename := string(bytes.TrimRight(e.Filename[:], "\x00"))
 
-	return fmt.Sprintf("PID:%d Comm:%s File:%s Flags:%d", e.Pid, comm, filename, e.Flags)
+	// Пример вывода: [PID:123 UID:0] (ret:3) openat(filename)
+	status := "SUCCESS"
+	if e.Ret < 0 {
+		status = fmt.Sprintf("ERR:%d", e.Ret)
+	} else {
+		status = fmt.Sprintf("FD:%d", e.Ret)
+	}
+
+	return fmt.Sprintf("PID:%d UID:%d CGROUP:%d COMM:%s FILE:%s RET:%s",
+		e.Pid, e.Uid, e.CgroupId, comm, filename, status)
 }

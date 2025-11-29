@@ -8,9 +8,17 @@ import (
 	_ "embed"
 	"fmt"
 	"io"
+	"structs"
 
 	"github.com/cilium/ebpf"
 )
+
+type OpenatArgsT struct {
+	_        structs.HostLayout
+	Dfd      int32
+	Flags    int32
+	Filename [256]int8
+}
 
 // LoadOpenat returns the embedded CollectionSpec for Openat.
 func LoadOpenat() (*ebpf.CollectionSpec, error) {
@@ -55,13 +63,15 @@ type OpenatSpecs struct {
 // It can be passed ebpf.CollectionSpec.Assign.
 type OpenatProgramSpecs struct {
 	TracepointSyscallsSysEnterOpenat *ebpf.ProgramSpec `ebpf:"tracepoint__syscalls__sys_enter_openat"`
+	TracepointSyscallsSysExitOpenat  *ebpf.ProgramSpec `ebpf:"tracepoint__syscalls__sys_exit_openat"`
 }
 
 // OpenatMapSpecs contains maps before they are loaded into the kernel.
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type OpenatMapSpecs struct {
-	Events *ebpf.MapSpec `ebpf:"events"`
+	Events     *ebpf.MapSpec `ebpf:"events"`
+	TmpStorage *ebpf.MapSpec `ebpf:"tmp_storage"`
 }
 
 // OpenatVariableSpecs contains global variables before they are loaded into the kernel.
@@ -90,12 +100,14 @@ func (o *OpenatObjects) Close() error {
 //
 // It can be passed to LoadOpenatObjects or ebpf.CollectionSpec.LoadAndAssign.
 type OpenatMaps struct {
-	Events *ebpf.Map `ebpf:"events"`
+	Events     *ebpf.Map `ebpf:"events"`
+	TmpStorage *ebpf.Map `ebpf:"tmp_storage"`
 }
 
 func (m *OpenatMaps) Close() error {
 	return _OpenatClose(
 		m.Events,
+		m.TmpStorage,
 	)
 }
 
@@ -110,11 +122,13 @@ type OpenatVariables struct {
 // It can be passed to LoadOpenatObjects or ebpf.CollectionSpec.LoadAndAssign.
 type OpenatPrograms struct {
 	TracepointSyscallsSysEnterOpenat *ebpf.Program `ebpf:"tracepoint__syscalls__sys_enter_openat"`
+	TracepointSyscallsSysExitOpenat  *ebpf.Program `ebpf:"tracepoint__syscalls__sys_exit_openat"`
 }
 
 func (p *OpenatPrograms) Close() error {
 	return _OpenatClose(
 		p.TracepointSyscallsSysEnterOpenat,
+		p.TracepointSyscallsSysExitOpenat,
 	)
 }
 
