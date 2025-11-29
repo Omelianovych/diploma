@@ -1,52 +1,55 @@
-package bpf
+package loader
 
 import (
+	"diploma/internal/bpf" // Импорт сгенерированного кода
 	"fmt"
-	"os"
-	"os/signal"
 
 	"github.com/cilium/ebpf/link"
-	"github.com/cilium/ebpf/perf"
+	"github.com/cilium/ebpf/ringbuf"
+	"github.com/cilium/ebpf/rlimit"
 )
 
-// Предположим, что bpf2go сгенерировал типы: OpenatObjects и LoadOpenatObjects.
-func LoadAndAttach() error {
-	var objs OpenatObjects
-	if err := LoadOpenatObjects(&objs, nil); err != nil {
-		return fmt.Errorf("load objects: %w", err)
+// Setup делает всю грязную работу по инициализации eBPF.
+// Возвращает Reader для чтения событий и функцию очистки (cleanup).
+func Setup() (*ringbuf.Reader, func(), error) {
+	// 1. Снимаем лимиты памяти
+	if err := rlimit.RemoveMemlock(); err != nil {
+		return nil, nil, fmt.Errorf("rlimit error: %w", err)
 	}
-	// Автоотключение при выходе
-	tp, err := link.Tracepoint("syscalls", "sys_enter_openat", objs.TraceOpenat, nil)
-	if err != nil {
-		return fmt.Errorf("attach tracepoint: %w", err)
+
+	// 2. Загружаем байт-код в ядро
+	var objs bpf.OpenatObjects
+	if err := bpf.LoadOpenatObjects(&objs, nil); err != nil {
+		return nil, nil, fmt.Errorf("load objects error: %w", err)
 	}
-	// Пример ringbuf: (bpf2go создаст карту ringbuf "events" и поле Events)
-	rd, err := perf.NewReader(objs.Events, os.Getpagesize()*8)
+
+	// Функция очистки (замыкание), которую мы будем дополнять
+	cleanup := func() {
+		objs.Close()
+	}
+
+	// 3. Прикрепляем Tracepoint
+	// Используем объекты из пакета bpf
+	tp, err := link.Tracepoint("syscalls", "sys_enter_openat", objs.TracepointSyscallsSysEnterOpenat, nil)
 	if err != nil {
+		cleanup()
+		return nil, nil, fmt.Errorf("link error: %w", err)
+	}
+
+	// Добавляем закрытие линка в cleanup
+	// (Это паттерн, чтобы гарантировать закрытие ресурсов в правильном порядке)
+	baseCleanup := cleanup
+	cleanup = func() {
 		tp.Close()
-		return fmt.Errorf("new reader: %w", err)
+		baseCleanup()
 	}
 
-	// Читаем события в горутине
-	go func() {
-		for {
-			record, err := rd.Read()
-			if err != nil {
-				fmt.Println("read error:", err)
-				return
-			}
-			// распарсить record.RawSample в вашу структуру (см. сгенерированные типы)
-			fmt.Printf("raw event len=%d\n", len(record.RawSample))
-		}
-	}()
+	// 4. Открываем RingBuffer
+	rd, err := ringbuf.NewReader(objs.Events)
+	if err != nil {
+		cleanup()
+		return nil, nil, fmt.Errorf("ringbuf reader error: %w", err)
+	}
 
-	// Ожидаем сигнала для graceful shutdown
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, os.Interrupt)
-	<-sig
-
-	rd.Close()
-	tp.Close()
-	objs.Close()
-	return nil
+	return rd, cleanup, nil
 }

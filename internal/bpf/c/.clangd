@@ -1,0 +1,8 @@
+CompileFlags:
+  Add:
+    - "-xc"
+  Remove: []
+
+FileTypes:
+  - Glob: "*.c.in"
+    Language: C

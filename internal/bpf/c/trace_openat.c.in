@@ -1,0 +1,61 @@
+// go:build ignore
+
+#include "headers/vmlinux.h"
+#include <bpf/bpf_helpers.h>
+
+/*
+ * 1. Data Structure
+ * Must match the 'type Event struct' in main.go byte-for-byte.
+ */
+struct event {
+  u32 pid;
+  int flags;
+  char comm[16];      // TASK_COMM_LEN
+  char filename[256]; // Max filename length we capture
+};
+
+/*
+ * 2. RingBuffer Map Definition (BTF Style)
+ * The name 'events' will become 'objs.Events' in Go.
+ */
+struct {
+  __uint(type, BPF_MAP_TYPE_RINGBUF);
+  __uint(max_entries, 1 << 24); // 16MB buffer
+} events SEC(".maps");
+
+SEC("tracepoint/syscalls/sys_enter_openat")
+int tracepoint__syscalls__sys_enter_openat(
+    struct trace_event_raw_sys_enter *ctx) {
+
+  // A. Reserve space in the RingBuffer
+  struct event *e;
+  e = bpf_ringbuf_reserve(&events, sizeof(*e), 0);
+  if (!e) {
+    return 0; // Buffer is full or allocation failed
+  }
+
+  // B. Fill: Process ID
+  u64 id = bpf_get_current_pid_tgid();
+  e->pid = id >> 32;
+
+  // C. Fill: Process Name (comm)
+  bpf_get_current_comm(&e->comm, sizeof(e->comm));
+
+  // D. Fill: Filename from User Space
+  // For openat(dfd, filename, flags, mode):
+  // args[0] = dfd
+  // args[1] = filename (pointer)
+  // args[2] = flags
+  bpf_probe_read_user_str(&e->filename, sizeof(e->filename),
+                          (char *)ctx->args[1]);
+
+  // E. Fill: Flags (O_RDWR, etc.)
+  e->flags = (int)ctx->args[2];
+
+  // F. Submit the event to User Space
+  bpf_ringbuf_submit(e, 0);
+
+  return 0;
+}
+
+char LICENSE[] SEC("license") = "GPL";
