@@ -1,262 +1,768 @@
-2025/11/29 18:37:21 Запуск Security Monitor...
-2025/11/29 18:37:21 Система работает. Нажмите Ctrl+C для выхода.
-2025/11/29 18:37:21 [Analyzer] PID:198678 UID:1000 CGROUP:11313 COMM:nvim FILE:/home/perry/.local/share/nvim/lazy/LazyVim/lua/lazyvim/plugins RET:FD:47
-2025/11/29 18:37:21 [Analyzer] PID:198678 UID:1000 CGROUP:11313 COMM:nvim FILE:/home/perry/.config/nvim/lua/plugins RET:FD:47
-2025/11/29 18:37:22 [Analyzer] PID:777 UID:1000 CGROUP:3871 COMM:Xwayland FILE:/proc/28029/cmdline RET:FD:35
-2025/11/29 18:37:22 [Analyzer] PID:777 UID:1000 CGROUP:3871 COMM:Xwayland FILE:/etc/passwd RET:FD:35
-2025/11/29 18:37:22 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/ RET:FD:38
-2025/11/29 18:37:22 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/type RET:FD:42
-2025/11/29 18:37:22 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/status RET:FD:38
-2025/11/29 18:37:22 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/status RET:FD:38
-2025/11/29 18:37:22 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/current_now RET:FD:38
-2025/11/29 18:37:22 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/voltage_now RET:FD:38
-2025/11/29 18:37:22 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/charge_full RET:FD:38
-2025/11/29 18:37:22 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/charge_full_design RET:FD:38
-2025/11/29 18:37:22 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/charge_now RET:FD:38
-2025/11/29 18:37:22 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/cycle_count RET:FD:38
-2025/11/29 18:37:22 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/ACAD/online RET:FD:38
-2025/11/29 18:37:22 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/ACAD/status RET:ERR:-2
-2025/11/29 18:37:22 [Analyzer] PID:777 UID:1000 CGROUP:3871 COMM:Xwayland FILE:/proc/28029/cmdline RET:FD:35
-2025/11/29 18:37:22 [Analyzer] PID:777 UID:1000 CGROUP:3871 COMM:Xwayland FILE:/etc/passwd RET:FD:35
-2025/11/29 18:37:22 [Analyzer] PID:777 UID:1000 CGROUP:3871 COMM:Xwayland FILE:/proc/28029/cmdline RET:FD:35
-2025/11/29 18:37:22 [Analyzer] PID:777 UID:1000 CGROUP:3871 COMM:Xwayland FILE:/etc/passwd RET:FD:35
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/198530/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/198530/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/645/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/645/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/603/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/603/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/584/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/201189/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/201189/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/645/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/645/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/603/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/603/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/584/status RET:FD:170
-2025/11/29 18:37:22 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:FSBroker183372 FILE:/proc/183372/statm RET:FD:183
-2025/11/29 18:37:22 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:FSBroker183372 FILE:/proc/183372/smaps RET:FD:183
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/proc/net/dev RET:FD:38
-2025/11/29 18:37:23 [Analyzer] PID:28299 UID:1000 CGROUP:3871 COMM:steamwebhelper FILE:/tmp/dumps/settings.dat RET:FD:5
-2025/11/29 18:37:23 [Analyzer] PID:28299 UID:1000 CGROUP:3871 COMM:steamwebhelper FILE:/tmp/dumps/completed RET:FD:5
-2025/11/29 18:37:23 [Analyzer] PID:28299 UID:1000 CGROUP:3871 COMM:steamwebhelper FILE:/tmp/dumps/pending RET:FD:5
-2025/11/29 18:37:23 [Analyzer] PID:2326 UID:1000 CGROUP:3871 COMM:Linux Main Thre FILE:/home/perry/.cache/spotify/settings.dat RET:FD:4
-2025/11/29 18:37:23 [Analyzer] PID:2326 UID:1000 CGROUP:3871 COMM:Linux Main Thre FILE:/home/perry/.cache/spotify/completed RET:FD:4
-2025/11/29 18:37:23 [Analyzer] PID:2326 UID:1000 CGROUP:3871 COMM:Linux Main Thre FILE:/home/perry/.cache/spotify/pending RET:FD:4
-2025/11/29 18:37:23 [Analyzer] PID:777 UID:1000 CGROUP:3871 COMM:Xwayland FILE:/proc/28029/cmdline RET:FD:35
-2025/11/29 18:37:23 [Analyzer] PID:777 UID:1000 CGROUP:3871 COMM:Xwayland FILE:/etc/passwd RET:FD:35
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/ RET:FD:38
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/type RET:FD:42
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/status RET:FD:38
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/status RET:FD:38
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/current_now RET:FD:38
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/voltage_now RET:FD:38
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/charge_full RET:FD:38
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/charge_full_design RET:FD:38
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/charge_now RET:FD:38
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/cycle_count RET:FD:38
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/ACAD/online RET:FD:38
-2025/11/29 18:37:23 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/ACAD/status RET:ERR:-2
-2025/11/29 18:37:23 [Analyzer] PID:588 UID:0 CGROUP:2974 COMM:nbfc_service FILE:/sys/class/hwmon/hwmon4/temp1_input RET:FD:23
-2025/11/29 18:37:23 [Analyzer] PID:588 UID:0 CGROUP:2974 COMM:nbfc_service FILE:/sys/class/hwmon/hwmon4/temp1_input RET:FD:23
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/self/statm RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/183188/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #721 FILE:/proc/self/statm RET:FD:183
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #721 FILE:/proc/self/smaps RET:FD:183
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/183266/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:Cache2 I/O FILE:/home/perry/.cache/mozilla/firefox/npo9whj8.default-release/cache2/entries/D0F48A0632B6C451791F4257697E861961F06A6F RET:FD:184
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:Cache2 I/O FILE:/proc/self/mountinfo RET:FD:186
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:Cache2 I/O FILE:/proc/self/mountinfo RET:FD:186
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:Cache2 I/O FILE:/proc/self/mountinfo RET:FD:186
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:Cache2 I/O FILE:/proc/self/mountinfo RET:FD:186
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:Cache2 I/O FILE:/proc/self/mountinfo RET:FD:186
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/183372/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/185111/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/185270/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/185277/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:23 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:23 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:3
-2025/11/29 18:37:23 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:23 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:23 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:3
-2025/11/29 18:37:23 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:3
-2025/11/29 18:37:23 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:3
-2025/11/29 18:37:23 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/186394/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/186401/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:198678 UID:1000 CGROUP:11313 COMM:nvim FILE:/home/perry/.local/share/nvim/lazy/LazyVim/lua/lazyvim/plugins RET:FD:47
-2025/11/29 18:37:23 [Analyzer] PID:198678 UID:1000 CGROUP:11313 COMM:nvim FILE:/home/perry/.config/nvim/lua/plugins RET:FD:47
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/186474/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/187584/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/193408/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/195214/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/195270/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/195277/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/195351/smaps RET:FD:127
-2025/11/29 18:37:23 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/195463/smaps RET:FD:127
-2025/11/29 18:37:24 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/197396/smaps RET:FD:127
-2025/11/29 18:37:24 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/197438/smaps RET:FD:127
-2025/11/29 18:37:24 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:StreamT~ns #720 FILE:/proc/198941/smaps RET:FD:127
-2025/11/29 18:37:24 [Analyzer] PID:28296 UID:1000 CGROUP:3871 COMM:CGamepadAPITask FILE:/sys/kernel/debug/tracing/trace_marker RET:ERR:-13
-2025/11/29 18:37:24 [Analyzer] PID:28296 UID:1000 CGROUP:3871 COMM:CGamepadAPITask FILE:/sys/kernel/tracing/trace_marker RET:ERR:-13
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:24 [Analyzer] PID:205869 UID:1000 CGROUP:11364 COMM:cat FILE:/etc/ld.so.cache RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205869 UID:1000 CGROUP:11364 COMM:cat FILE:/usr/lib/libc.so.6 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205869 UID:1000 CGROUP:11364 COMM:cat FILE:/usr/lib/locale/locale-archive RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205869 UID:1000 CGROUP:11364 COMM:cat FILE:/etc/shadow RET:ERR:-13
-2025/11/29 18:37:24 [Analyzer] PID:205869 UID:1000 CGROUP:11364 COMM:cat FILE:/usr/share/locale/locale.alias RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205869 UID:1000 CGROUP:11364 COMM:cat FILE:/usr/share/locale/en_US.UTF-8/LC_MESSAGES/libc.mo RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205869 UID:1000 CGROUP:11364 COMM:cat FILE:/usr/share/locale/en_US.utf8/LC_MESSAGES/libc.mo RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205869 UID:1000 CGROUP:11364 COMM:cat FILE:/usr/share/locale/en_US/LC_MESSAGES/libc.mo RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205869 UID:1000 CGROUP:11364 COMM:cat FILE:/usr/share/locale/en.UTF-8/LC_MESSAGES/libc.mo RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205869 UID:1000 CGROUP:11364 COMM:cat FILE:/usr/share/locale/en.utf8/LC_MESSAGES/libc.mo RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205869 UID:1000 CGROUP:11364 COMM:cat FILE:/usr/share/locale/en/LC_MESSAGES/libc.mo RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/201189/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/201189/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/645/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/645/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/603/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/603/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/584/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/etc/ld.so.cache RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/usr/lib/libc.so.6 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/usr/lib/libgcc_s.so.1 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/usr/lib/libm.so.6 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE: RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/201189/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/201189/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/home/perry/.cache/starship/session_1869276981639525.log RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/645/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/proc/self/cgroup RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/645/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/kitty-201189-0.scope/cpu.max RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/603/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/cpu.max RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/fs/cgroup/user.slice/user-1000.slice/cpu.max RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/fs/cgroup/user.slice/cpu.max RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/603/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/fs/cgroup/cpu.max RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/584/status RET:FD:170
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/home/perry/.cache/starship RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/home/perry/.config/starship.toml RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/home/perry RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/etc/nsswitch.conf RET:FD:4
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/devices/system/cpu/online RET:FD:6
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/run/systemd/container RET:FD:5
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/etc/passwd RET:FD:4
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/home/perry RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:from_path_with_ FILE:/home/perry RET:FD:6
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/manufacturer RET:FD:4
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/model_name RET:FD:5
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/serial_number RET:FD:5
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/technology RET:FD:5
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/capacity RET:FD:5
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/energy_full RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/charge_full RET:FD:5
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/voltage_max_design RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/voltage_min_design RET:FD:4
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/home/perry RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/home/perry RET:FD:5
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/home/perry/.aws/config RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/home/perry/.config/gcloud/active_config RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/energy_now RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/home RET:FD:5
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/ RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/charge_now RET:FD:4
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/power_now RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/current_now RET:FD:4
-2025/11/29 18:37:24 [Analyzer] PID:205881 UID:1000 CGROUP:11364 COMM:ip FILE:/etc/ld.so.cache RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/charge_full RET:FD:4
-2025/11/29 18:37:24 [Analyzer] PID:205881 UID:1000 CGROUP:11364 COMM:ip FILE:/usr/lib/libbpf.so.1 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/voltage_now RET:FD:4
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/status RET:FD:4
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/temp RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205881 UID:1000 CGROUP:11364 COMM:ip FILE:/usr/lib/libelf.so.1 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/BAT1/cycle_count RET:FD:4
-2025/11/29 18:37:24 [Analyzer] PID:205871 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/class/power_supply/ACAD/type RET:FD:4
-2025/11/29 18:37:24 [Analyzer] PID:205881 UID:1000 CGROUP:11364 COMM:ip FILE:/usr/lib/libmnl.so.0 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205881 UID:1000 CGROUP:11364 COMM:ip FILE:/usr/lib/libcap.so.2 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205881 UID:1000 CGROUP:11364 COMM:ip FILE:/usr/lib/libc.so.6 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205881 UID:1000 CGROUP:11364 COMM:ip FILE:/usr/lib/libz.so.1 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205881 UID:1000 CGROUP:11364 COMM:ip FILE:/usr/lib/libzstd.so.1 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205881 UID:1000 CGROUP:11364 COMM:ip FILE:/proc/self/ns/net RET:FD:5
-2025/11/29 18:37:24 [Analyzer] PID:205881 UID:1000 CGROUP:11364 COMM:ip FILE:/var/run/netns RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/etc/ld.so.cache RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/usr/lib/libc.so.6 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/usr/lib/libgcc_s.so.1 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/usr/lib/libm.so.6 RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE: RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/home/perry/.cache/starship/session_1869276981639525.log RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/proc/self/cgroup RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/kitty-201189-0.scope/cpu.max RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/cpu.max RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/fs/cgroup/user.slice/user-1000.slice/cpu.max RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/fs/cgroup/user.slice/cpu.max RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/sys/fs/cgroup/cpu.max RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/home/perry/.cache/starship RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:205884 UID:1000 CGROUP:11364 COMM:starship FILE:/home/perry/.config/starship.toml RET:FD:3
-2025/11/29 18:37:24 [Analyzer] PID:201208 UID:1000 CGROUP:11364 COMM:zsh FILE:/dev/null RET:FD:0
-2025/11/29 18:37:24 [Analyzer] PID:777 UID:1000 CGROUP:3871 COMM:Xwayland FILE:/proc/28029/cmdline RET:FD:35
-2025/11/29 18:37:24 [Analyzer] PID:777 UID:1000 CGROUP:3871 COMM:Xwayland FILE:/etc/passwd RET:FD:35
-2025/11/29 18:37:24 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/ RET:FD:38
-2025/11/29 18:37:24 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/type RET:FD:42
-2025/11/29 18:37:24 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/status RET:FD:38
-2025/11/29 18:37:24 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/status RET:FD:38
-2025/11/29 18:37:24 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/current_now RET:FD:38
-2025/11/29 18:37:24 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/voltage_now RET:FD:38
-2025/11/29 18:37:24 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/charge_full RET:FD:38
-2025/11/29 18:37:24 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/charge_full_design RET:FD:38
-2025/11/29 18:37:24 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/charge_now RET:FD:38
-2025/11/29 18:37:24 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/cycle_count RET:FD:38
-2025/11/29 18:37:24 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/ACAD/online RET:FD:38
-2025/11/29 18:37:24 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/ACAD/status RET:ERR:-2
-2025/11/29 18:37:24 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:FSBroker195270 FILE:/proc/195270/statm RET:FD:183
-2025/11/29 18:37:24 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:FSBroker195270 FILE:/proc/195270/smaps RET:FD:183
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/proc/net/dev RET:FD:38
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/201189/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/201189/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/645/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/645/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/603/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/603/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/584/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/198530/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/198530/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/645/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/645/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/603/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/603/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:645 UID:1000 CGROUP:3871 COMM:Hyprland FILE:/proc/584/status RET:FD:170
-2025/11/29 18:37:25 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:FSBroker195214 FILE:/proc/195214/statm RET:FD:183
-2025/11/29 18:37:25 [Analyzer] PID:183048 UID:1000 CGROUP:3871 COMM:FSBroker195214 FILE:/proc/195214/smaps RET:FD:183
-2025/11/29 18:37:25 [Analyzer] PID:777 UID:1000 CGROUP:3871 COMM:Xwayland FILE:/proc/28029/cmdline RET:FD:35
-2025/11/29 18:37:25 [Analyzer] PID:777 UID:1000 CGROUP:3871 COMM:Xwayland FILE:/etc/passwd RET:FD:35
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/ RET:FD:38
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/type RET:FD:42
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/status RET:FD:38
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/status RET:FD:38
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/current_now RET:FD:38
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/voltage_now RET:FD:38
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/charge_full RET:FD:38
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/charge_full_design RET:FD:38
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/charge_now RET:FD:38
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/BAT1/cycle_count RET:FD:38
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/ACAD/online RET:FD:38
-2025/11/29 18:37:25 [Analyzer] PID:759 UID:1000 CGROUP:3871 COMM:waybar FILE:/sys/class/power_supply/ACAD/status RET:ERR:-2
-2025/11/29 18:37:25 
+2025/11/30 17:01:45 Запуск Security Monitor...
+2025/11/30 17:01:45 Система работает. Нажмите Ctrl+C для выхода.
+2025/11/30 17:01:45 [Analyzer] PID:218650 COMM:FSBroker218785
+	Raw Path:      /proc/218785/statm
+	Resolved Path: /proc/218785/statm
+	Status:        SUCCESS (FD: 107)
+2025/11/30 17:01:45 [Analyzer] PID:218650 COMM:FSBroker218785
+	Raw Path:      /proc/218785/smaps
+	Resolved Path: /proc/218785/smaps
+	Status:        SUCCESS (FD: 107)
+2025/11/30 17:01:45 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /proc/net/dev
+	Resolved Path: /proc/759/net/dev
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:45 [Analyzer] PID:777 COMM:Xwayland
+	Raw Path:      /proc/28029/cmdline
+	Resolved Path: /proc/28029/cmdline
+	Status:        SUCCESS (FD: 33)
+2025/11/30 17:01:45 [Analyzer] PID:777 COMM:Xwayland
+	Raw Path:      /etc/passwd
+	Resolved Path: /etc/passwd
+	Status:        SUCCESS (FD: 33)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/198530/status
+	Resolved Path: /proc/198530/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/198530/status
+	Resolved Path: /proc/198530/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/645/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/645/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/603/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/603/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/584/status
+	Resolved Path: /proc/584/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/235221/status
+	Resolved Path: /proc/235221/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/235221/status
+	Resolved Path: /proc/235221/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/645/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/645/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/603/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/603/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:45 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/584/status
+	Resolved Path: /proc/584/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/
+	Resolved Path: /sys/class/power_supply
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:46 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/type
+	Resolved Path: /sys/class/power_supply/BAT1/type
+	Status:        SUCCESS (FD: 42)
+2025/11/30 17:01:46 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/status
+	Resolved Path: /sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:64/PNP0C0A:00/power_supply/BAT1/status
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:46 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/status
+	Resolved Path: /sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:64/PNP0C0A:00/power_supply/BAT1/status
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:46 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/current_now
+	Resolved Path: /sys/class/power_supply/BAT1/current_now
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:46 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/voltage_now
+	Resolved Path: /sys/class/power_supply/BAT1/voltage_now
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:46 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/charge_full
+	Resolved Path: /sys/class/power_supply/BAT1/charge_full
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:46 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/charge_full_design
+	Resolved Path: /sys/class/power_supply/BAT1/charge_full_design
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:46 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/charge_now
+	Resolved Path: /sys/class/power_supply/BAT1/charge_now
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:46 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/cycle_count
+	Resolved Path: /sys/devices/pci0000:00/0000:00:14.3/ACPI0003:00/power_supply/ACAD/online
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:46 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/ACAD/online
+	Resolved Path: /sys/devices/pci0000:00/0000:00:14.3/ACPI0003:00/power_supply/ACAD/online
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:46 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/ACAD/status
+	Resolved Path: /sys/class/power_supply/ACAD/status
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 0)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 0)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 0)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 0)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 0)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 0)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 0)
+2025/11/30 17:01:46 [Analyzer] PID:236046 COMM:cat
+	Raw Path:      /etc/ld.so.cache
+	Resolved Path: /usr/lib/libc.so.6
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236046 COMM:cat
+	Raw Path:      /usr/lib/libc.so.6
+	Resolved Path: /usr/lib/libc.so.6
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236046 COMM:cat
+	Raw Path:      /usr/lib/locale/locale-archive
+	Resolved Path: /usr/lib/locale/locale-archive
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236046 COMM:cat
+	Raw Path:      shadow
+	Resolved Path: /etc/shadow
+	Status:        BLOCKED (Err: -13)
+2025/11/30 17:01:46 [Analyzer] PID:236046 COMM:cat
+	Raw Path:      /usr/share/locale/locale.alias
+	Resolved Path: /usr/share/locale/locale.alias
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236046 COMM:cat
+	Raw Path:      /usr/share/locale/en_US.UTF-8/LC_MESSAGES/libc.mo
+	Resolved Path: /usr/share/locale/en_US.UTF-8/LC_MESSAGES/libc.mo
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236046 COMM:cat
+	Raw Path:      /usr/share/locale/en_US.utf8/LC_MESSAGES/libc.mo
+	Resolved Path: /usr/share/locale/en_US.utf8/LC_MESSAGES/libc.mo
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236046 COMM:cat
+	Raw Path:      /usr/share/locale/en_US/LC_MESSAGES/libc.mo
+	Resolved Path: /usr/share/locale/en_US/LC_MESSAGES/libc.mo
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236046 COMM:cat
+	Raw Path:      /usr/share/locale/en.UTF-8/LC_MESSAGES/libc.mo
+	Resolved Path: /usr/share/locale/en.UTF-8/LC_MESSAGES/libc.mo
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236046 COMM:cat
+	Raw Path:      /usr/share/locale/en.utf8/LC_MESSAGES/libc.mo
+	Resolved Path: /usr/share/locale/en.utf8/LC_MESSAGES/libc.mo
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236046 COMM:cat
+	Raw Path:      /usr/share/locale/en/LC_MESSAGES/libc.mo
+	Resolved Path: /usr/share/locale/en/LC_MESSAGES/libc.mo
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/235221/status
+	Resolved Path: /proc/235221/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/235221/status
+	Resolved Path: /proc/235221/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/645/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/645/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/603/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/603/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/584/status
+	Resolved Path: /proc/584/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:777 COMM:Xwayland
+	Raw Path:      /proc/28029/cmdline
+	Resolved Path: /proc/28029/cmdline
+	Status:        SUCCESS (FD: 33)
+2025/11/30 17:01:46 [Analyzer] PID:777 COMM:Xwayland
+	Raw Path:      /etc/passwd
+	Resolved Path: /etc/passwd
+	Status:        SUCCESS (FD: 33)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /etc/ld.so.cache
+	Resolved Path: /usr/lib/libc.so.6
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /usr/lib/libc.so.6
+	Resolved Path: /usr/lib/libgcc_s.so.1
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /usr/lib/libgcc_s.so.1
+	Resolved Path: /usr/lib/libgcc_s.so.1
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /usr/lib/libm.so.6
+	Resolved Path: /usr/lib/libm.so.6
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/235221/status
+	Resolved Path: /proc/235221/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      
+	Resolved Path: /proc/236048/maps
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/235221/status
+	Resolved Path: /proc/235221/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/645/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/645/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /home/perry/.cache/starship/session_1995476853000824.log
+	Resolved Path: /home/perry/.cache/starship/session_1995476853000824.log
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/603/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/603/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /proc/self/cgroup
+	Resolved Path: /proc/self/cgroup
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/584/status
+	Resolved Path: /proc/584/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/kitty-235221-0.scope/cpu.max
+	Resolved Path: /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/kitty-235221-0.scope/cpu.max
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/cpu.max
+	Resolved Path: /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/cpu.max
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/fs/cgroup/user.slice/user-1000.slice/cpu.max
+	Resolved Path: /sys/fs/cgroup/user.slice/user-1000.slice/cpu.max
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/fs/cgroup/user.slice/cpu.max
+	Resolved Path: /sys/fs/cgroup/user.slice/cpu.max
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/fs/cgroup/cpu.max
+	Resolved Path: /sys/fs/cgroup/cpu.max
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /home/perry/.cache/starship
+	Resolved Path: /home/perry/.cache/starship
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /home/perry/.config/starship.toml
+	Resolved Path: /home/perry/.config/starship.toml
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /etc
+	Resolved Path: /etc
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /etc/nsswitch.conf
+	Resolved Path: /etc/nsswitch.conf
+	Status:        SUCCESS (FD: 4)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /etc/passwd
+	Resolved Path: /etc
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /proc/sys/kernel/ngroups_max
+	Resolved Path: /etc
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:from_path_with_
+	Raw Path:      /etc
+	Resolved Path: /etc
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /etc
+	Resolved Path: /etc
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /home/perry/.aws/config
+	Resolved Path: /home/perry/.aws/config
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply
+	Resolved Path: /sys/class/power_supply
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply
+	Resolved Path: /sys/class/power_supply
+	Status:        SUCCESS (FD: 5)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/type
+	Resolved Path: /sys/class/power_supply/BAT1/type
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 4)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/scope
+	Resolved Path: /sys/class/power_supply/BAT1/scope
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/manufacturer
+	Resolved Path: /sys/class/power_supply/BAT1/manufacturer
+	Status:        SUCCESS (FD: 9)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/model_name
+	Resolved Path: /sys/class/power_supply/BAT1/model_name
+	Status:        SUCCESS (FD: 9)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /
+	Resolved Path: /sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:64/PNP0C0A:00/power_supply/BAT1/technology
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/serial_number
+	Resolved Path: /sys/class/power_supply/BAT1/serial_number
+	Status:        SUCCESS (FD: 9)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/technology
+	Resolved Path: /sys/class/power_supply/BAT1/technology
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/capacity
+	Resolved Path: /sys/class/power_supply/BAT1/capacity
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/energy_full
+	Resolved Path: /sys/class/power_supply/BAT1/energy_full
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/charge_full
+	Resolved Path: /sys/class/power_supply/BAT1/charge_full
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/voltage_max_design
+	Resolved Path: /sys/class/power_supply/BAT1/voltage_max_design
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/voltage_min_design
+	Resolved Path: /sys/class/power_supply/BAT1/voltage_min_design
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/energy_full_design
+	Resolved Path: /sys/class/power_supply/BAT1/energy_full_design
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/charge_full_design
+	Resolved Path: /sys/class/power_supply/BAT1/charge_full_design
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/energy_now
+	Resolved Path: /sys/class/power_supply/BAT1/energy_now
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/energy_avg
+	Resolved Path: /sys/class/power_supply/BAT1/energy_avg
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/charge_now
+	Resolved Path: /sys/class/power_supply/BAT1/charge_now
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/power_now
+	Resolved Path: /sys/class/power_supply/BAT1/power_now
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/current_now
+	Resolved Path: /sys/class/power_supply/BAT1/current_now
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/charge_full
+	Resolved Path: /sys/class/power_supply/BAT1/charge_full
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/voltage_now
+	Resolved Path: /sys/class/power_supply/BAT1/voltage_now
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/status
+	Resolved Path: /sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:64/PNP0C0A:00/power_supply/BAT1/status
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236058 COMM:ip
+	Raw Path:      /etc/ld.so.cache
+	Resolved Path: /usr/lib/libbpf.so.1.5.1
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236058 COMM:ip
+	Raw Path:      /usr/lib/libbpf.so.1
+	Resolved Path: /usr/lib/libbpf.so.1.5.1
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236058 COMM:ip
+	Raw Path:      /usr/lib/libelf.so.1
+	Resolved Path: /usr/lib/libelf-0.194.so
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236058 COMM:ip
+	Raw Path:      /usr/lib/libmnl.so.0
+	Resolved Path: /usr/lib/libmnl.so.0.2.0
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236058 COMM:ip
+	Raw Path:      /usr/lib/libcap.so.2
+	Resolved Path: /usr/lib/libcap.so.2.77
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236058 COMM:ip
+	Raw Path:      /usr/lib/libc.so.6
+	Resolved Path: /usr/lib/libc.so.6
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236058 COMM:ip
+	Raw Path:      /usr/lib/libz.so.1
+	Resolved Path: /usr/lib/libz.so.1.3.1
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236058 COMM:ip
+	Raw Path:      /usr/lib/libzstd.so.1
+	Resolved Path: /usr/lib/libzstd.so.1.5.7
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236058 COMM:ip
+	Raw Path:      /proc/self/ns/net
+	Resolved Path: /proc/self/ns/net
+	Status:        SUCCESS (FD: 5)
+2025/11/30 17:01:46 [Analyzer] PID:236058 COMM:ip
+	Raw Path:      /var/run/netns
+	Resolved Path: /var/run/netns
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/temp
+	Resolved Path: /sys/class/power_supply/BAT1/temp
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/BAT1/cycle_count
+	Resolved Path: /sys/class/power_supply/BAT1/cycle_count
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236048 COMM:starship
+	Raw Path:      /sys/class/power_supply/ACAD/type
+	Resolved Path: /sys/class/power_supply/ACAD/type
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /etc/ld.so.cache
+	Resolved Path: /usr/lib/libc.so.6
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /usr/lib/libc.so.6
+	Resolved Path: /usr/lib/libc.so.6
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /usr/lib/libgcc_s.so.1
+	Resolved Path: /usr/lib/libgcc_s.so.1
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /usr/lib/libm.so.6
+	Resolved Path: /usr/lib/libm.so.6
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      
+	Resolved Path: /proc/236061/maps
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /home/perry/.cache/starship/session_1995476853000824.log
+	Resolved Path: /home/perry/.cache/starship/session_1995476853000824.log
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /proc/self/cgroup
+	Resolved Path: /proc/self/cgroup
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/kitty-235221-0.scope/cpu.max
+	Resolved Path: /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/kitty-235221-0.scope/cpu.max
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/cpu.max
+	Resolved Path: /sys/fs/cgroup/user.slice/cpu.max
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /sys/fs/cgroup/user.slice/user-1000.slice/cpu.max
+	Resolved Path: /sys/fs/cgroup/user.slice/user-1000.slice/cpu.max
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /sys/fs/cgroup/user.slice/cpu.max
+	Resolved Path: /sys/fs/cgroup/user.slice/cpu.max
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /sys/fs/cgroup/cpu.max
+	Resolved Path: /sys/fs/cgroup/cpu.max
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /home/perry/.cache/starship
+	Resolved Path: /home/perry/.cache/starship
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:236061 COMM:starship
+	Raw Path:      /home/perry/.config/starship.toml
+	Resolved Path: /home/perry/.config/starship.toml
+	Status:        SUCCESS (FD: 3)
+2025/11/30 17:01:46 [Analyzer] PID:235240 COMM:zsh
+	Raw Path:      /dev/null
+	Resolved Path: /dev/null
+	Status:        SUCCESS (FD: 0)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/
+	Resolved Path: /sys/class/power_supply/
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/type
+	Resolved Path: /sys/class/power_supply/BAT1/type
+	Status:        SUCCESS (FD: 42)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/status
+	Resolved Path: /sys/class/power_supply/BAT1/status
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/status
+	Resolved Path: /sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:64/PNP0C0A:00/power_supply/BAT1/status
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/current_now
+	Resolved Path: /sys/class/power_supply/BAT1/current_now
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/voltage_now
+	Resolved Path: /sys/class/power_supply/BAT1/voltage_now
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/charge_full
+	Resolved Path: /sys/class/power_supply/BAT1/charge_full
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/charge_full_design
+	Resolved Path: /sys/class/power_supply/BAT1/charge_full_design
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/charge_now
+	Resolved Path: /sys/class/power_supply/BAT1/charge_now
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/cycle_count
+	Resolved Path: /sys/class/power_supply/BAT1/cycle_count
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/ACAD/online
+	Resolved Path: /sys/devices/pci0000:00/0000:00:14.3/ACPI0003:00/power_supply/ACAD/online
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/ACAD/status
+	Resolved Path: /sys/class/power_supply/ACAD/status
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:47 [Analyzer] PID:198678 COMM:nvim
+	Raw Path:      /home/perry/.local/share/nvim/lazy/LazyVim/lua/lazyvim/plugins
+	Resolved Path: /home/perry/.local/share/nvim/lazy/LazyVim/lua/lazyvim/plugins
+	Status:        SUCCESS (FD: 47)
+2025/11/30 17:01:47 [Analyzer] PID:198678 COMM:nvim
+	Raw Path:      /home/perry/.config/nvim/lua/plugins
+	Resolved Path: /home/perry/.config/nvim/lua/plugins
+	Status:        SUCCESS (FD: 47)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/235221/status
+	Resolved Path: /proc/235221/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/235221/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/645/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/645/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/603/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/603/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/584/status
+	Resolved Path: /proc/584/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/198530/status
+	Resolved Path: /proc/198530/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/198530/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/645/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/645/status
+	Resolved Path: /proc/645/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/603/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/603/status
+	Resolved Path: /proc/603/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:645 COMM:Hyprland
+	Raw Path:      /proc/584/status
+	Resolved Path: /proc/584/status
+	Status:        SUCCESS (FD: 28)
+2025/11/30 17:01:47 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /proc/net/dev
+	Resolved Path: /proc/net/dev
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:47 [Analyzer] PID:777 COMM:Xwayland
+	Raw Path:      /proc/28029/cmdline
+	Resolved Path: /proc/28029/cmdline
+	Status:        SUCCESS (FD: 33)
+2025/11/30 17:01:47 [Analyzer] PID:777 COMM:Xwayland
+	Raw Path:      /etc/passwd
+	Resolved Path: /etc/passwd
+	Status:        SUCCESS (FD: 33)
+2025/11/30 17:01:47 [Analyzer] PID:588 COMM:nbfc_service
+	Raw Path:      /sys/class/hwmon/hwmon4/temp1_input
+	Resolved Path: /sys/class/hwmon/hwmon4/temp1_input
+	Status:        SUCCESS (FD: 23)
+2025/11/30 17:01:47 [Analyzer] PID:588 COMM:nbfc_service
+	Raw Path:      /sys/class/hwmon/hwmon4/temp1_input
+	Resolved Path: /sys/class/hwmon/hwmon4/temp1_input
+	Status:        SUCCESS (FD: 23)
+2025/11/30 17:01:48 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/
+	Resolved Path: /sys/class/power_supply
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:48 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/type
+	Resolved Path: /sys/class/power_supply/BAT1/type
+	Status:        SUCCESS (FD: 42)
+2025/11/30 17:01:48 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/status
+	Resolved Path: /sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:64/PNP0C0A:00/power_supply/BAT1/status
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:48 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/status
+	Resolved Path: /sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:64/PNP0C0A:00/power_supply/BAT1/status
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:48 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/current_now
+	Resolved Path: /sys/class/power_supply/BAT1/current_now
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:48 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/voltage_now
+	Resolved Path: /sys/class/power_supply/BAT1/voltage_now
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:48 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/charge_full
+	Resolved Path: /sys/class/power_supply/BAT1/charge_full
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:48 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/charge_full_design
+	Resolved Path: /sys/class/power_supply/BAT1/charge_full_design
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:48 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/charge_now
+	Resolved Path: /sys/class/power_supply/BAT1/charge_now
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:48 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/BAT1/cycle_count
+	Resolved Path: /sys/class/power_supply/BAT1/cycle_count
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:48 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/ACAD/online
+	Resolved Path: /sys/devices/pci0000:00/0000:00:14.3/ACPI0003:00/power_supply/ACAD/online
+	Status:        SUCCESS (FD: 38)
+2025/11/30 17:01:48 [Analyzer] PID:759 COMM:waybar
+	Raw Path:      /sys/class/power_supply/ACAD/status
+	Resolved Path: /sys/class/power_supply/ACAD/status
+	Status:        BLOCKED (Err: -2)
+2025/11/30 17:01:48 
 Завершение работы...

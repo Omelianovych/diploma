@@ -30,6 +30,6 @@ func (e OpenatEvent) String() string {
 		status = fmt.Sprintf("FD:%d", e.Ret)
 	}
 
-	return fmt.Sprintf("PID:%d UID:%d CGROUP:%d COMM:%s FILE:%s RET:%s",
-		e.Pid, e.Uid, e.CgroupId, comm, filename, status)
+	return fmt.Sprintf("PID:%d UID:%d GID:%d CGROUP:%d COMM:%s DFD:%d FLAGS:%d FILE:%s RET:%s",
+		e.Pid, e.Uid, e.Gid, e.CgroupId, comm, e.Dfd, e.Flags, filename, status)
 }
