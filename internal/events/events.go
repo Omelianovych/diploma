@@ -9,12 +9,14 @@ import (
 type OpenatEvent struct {
 	CgroupId uint64   // 8 байт
 	Pid      uint32   // 4 байта
+	Ppid     uint32   // 4 байта
 	Uid      uint32   // 4 байта
 	Gid      uint32   // 4 байта
 	Flags    int32    // 4 байта
 	Dfd      int32    // 4 байта
 	Ret      int32    // 4 байта (Результат)
 	Comm     [16]byte // 16 байт
+	Pcomm    [16]byte
 	Filename [256]byte
 }
 

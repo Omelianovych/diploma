@@ -5,24 +5,23 @@
 
 /*
  * 1. Итоговая структура события (Event)
- * Отправляется в userspace через RingBuffer.
- * ОБЯЗАТЕЛЬНО: обновите Go-структуру, чтобы она совпадала с этой!
  */
 struct event {
-  u64 cgroup_id;      // ID контейнера (cgroup v2)
-  u32 pid;            // Process ID
-  u32 uid;            // User ID
-  u32 gid;            // Group ID
-  int flags;          // Флаги (O_RDWR, O_CREAT...)
-  int dfd;            // Directory FD (важно для относительных путей)
-  int ret;            // Результат выполнения (FD или код ошибки -ENOENT)
-  char comm[16];      // Имя процесса
-  char filename[256]; // Имя файла
+  u64 cgroup_id;
+  u32 pid;
+  u32 ppid; // Parent PID
+  u32 uid;
+  u32 gid;
+  int flags;
+  int dfd;
+  int ret;
+  char comm[16];
+  char pcomm[16];
+  char filename[256];
 };
 
 /*
- * 2. Временная структура (Storage)
- * Используется для хранения аргументов между sys_enter и sys_exit.
+ * 2. Временная структура
  */
 struct args_t {
   int dfd;
@@ -31,82 +30,65 @@ struct args_t {
 };
 
 /*
- * 3. Карты (Maps)
+ * 3. Карты
  */
-
-// Основной канал передачи данных в Go
 struct {
   __uint(type, BPF_MAP_TYPE_RINGBUF);
-  __uint(max_entries, 1 << 24); // 16MB
+  __uint(max_entries, 1 << 24);
 } events SEC(".maps");
 
-// Временное хранилище: PID -> Аргументы
 struct {
   __uint(type, BPF_MAP_TYPE_HASH);
-  __uint(max_entries, 10240); // Поддержка до 10k одновременных сисколлов
-  __type(key, u32);           // PID
+  __uint(max_entries, 10240);
+  __type(key, u32);
   __type(value, struct args_t);
 } tmp_storage SEC(".maps");
 
 /*
- * 4. Точка ВХОДА (sys_enter)
- * Здесь мы только захватываем аргументы, так как filename доступен только тут.
+ * 4. ВХОД (без изменений)
  */
 SEC("tracepoint/syscalls/sys_enter_openat")
 int tracepoint__syscalls__sys_enter_openat(
     struct trace_event_raw_sys_enter *ctx) {
   u64 id = bpf_get_current_pid_tgid();
-  u32 pid = id >> 32;
+  u32 tid = id;
 
   struct args_t args = {};
-
-  // 1. Сохраняем аргументы сисколла
-  // openat(int dfd, const char *filename, int flags, umode_t mode)
-  // args[0] = dfd
-  // args[1] = filename ptr
-  // args[2] = flags
   args.dfd = (int)ctx->args[0];
   args.flags = (int)ctx->args[2];
-
-  // Читаем имя файла из памяти пользователя
   bpf_probe_read_user_str(&args.filename, sizeof(args.filename),
                           (char *)ctx->args[1]);
 
-  // 2. Кладем во временную карту по PID
-  bpf_map_update_elem(&tmp_storage, &pid, &args, BPF_ANY);
-
+  bpf_map_update_elem(&tmp_storage, &tid, &args, BPF_ANY);
   return 0;
 }
 
 /*
- * 5. Точка ВЫХОДА (sys_exit)
- * Здесь мы знаем результат (ret), собираем всё вместе и отправляем.
+ * 5. ВЫХОД (Исправленный PPID)
  */
 SEC("tracepoint/syscalls/sys_exit_openat")
 int tracepoint__syscalls__sys_exit_openat(
     struct trace_event_raw_sys_exit *ctx) {
   u64 id = bpf_get_current_pid_tgid();
+  u32 tid = id;
   u32 pid = id >> 32;
 
-  // 1. Ищем сохраненные аргументы
   struct args_t *saved_args;
-  saved_args = bpf_map_lookup_elem(&tmp_storage, &pid);
+  saved_args = bpf_map_lookup_elem(&tmp_storage, &tid);
 
   if (!saved_args) {
-    return 0; // Мы пропустили вход или это не наш процесс
-  }
-
-  // 2. Резервируем место в RingBuffer
-  struct event *e;
-  e = bpf_ringbuf_reserve(&events, sizeof(*e), 0);
-  if (!e) {
-    bpf_map_delete_elem(&tmp_storage, &pid); // Не забываем чистить карту
     return 0;
   }
 
-  // 3. Заполняем контекстные данные (Контейнеры, Юзеры)
-  e->pid = pid;
+  struct event *e;
+  e = bpf_ringbuf_reserve(&events, sizeof(*e), 0);
+  if (!e) {
+    bpf_map_delete_elem(&tmp_storage, &tid);
+    return 0;
+  }
+
   e->cgroup_id = bpf_get_current_cgroup_id();
+  e->pid = pid;
 
   u64 uid_gid = bpf_get_current_uid_gid();
   e->uid = (u32)uid_gid;
@@ -114,25 +96,30 @@ int tracepoint__syscalls__sys_exit_openat(
 
   bpf_get_current_comm(&e->comm, sizeof(e->comm));
 
-  // 4. Заполняем данные сисколла из временного хранилища
+  // === ИСПРАВЛЕННОЕ ПОЛУЧЕНИЕ PPID ===
+  // Вместо макроса BPF_CORE_READ используем стандартные функции чтения.
+
+  struct task_struct *task = (struct task_struct *)bpf_get_current_task();
+  struct task_struct *parent;
+
+  // 1. Читаем указатель на родителя (task->real_parent)
+  // Используем preserve_access_index для поддержки CO-RE (переносимости между
+  // ядрами)
+  bpf_probe_read_kernel(&parent, sizeof(parent), &task->real_parent);
+
+  // 2. Читаем PID из структуры родителя (parent->tgid)
+  bpf_probe_read_kernel(&e->ppid, sizeof(e->ppid), &parent->tgid);
+  bpf_probe_read_kernel(&e->pcomm, sizeof(e->pcomm), &parent->comm);
+  // ===================================
+
   e->dfd = saved_args->dfd;
   e->flags = saved_args->flags;
-  // Копируем имя файла (используем __builtin_memcpy или цикл, но для простоты
-  // bpf_probe_read_kernel) Так как saved_args находится в памяти BPF,
-  // используем простое присваивание для массивов фиксированной длины или helper
-  // для копирования памяти. В старых ядрах нужно использовать bpf_probe_read, в
-  // новых __builtin_memcpy работает. Для надежности используем helper чтения:
   bpf_probe_read_kernel(&e->filename, sizeof(e->filename),
                         saved_args->filename);
-
-  // 5. Самое главное: Результат выполнения
   e->ret = (int)ctx->ret;
 
-  // 6. Отправляем в Go
   bpf_ringbuf_submit(e, 0);
-
-  // 7. Очищаем временное хранилище
-  bpf_map_delete_elem(&tmp_storage, &pid);
+  bpf_map_delete_elem(&tmp_storage, &tid);
 
   return 0;
 }
