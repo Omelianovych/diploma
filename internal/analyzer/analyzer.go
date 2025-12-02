@@ -16,54 +16,91 @@ func New() *Analyzer {
 	return &Analyzer{}
 }
 
-// HandleOpenat - Обработка события
+// HandleOpenat - Обработка события открытия файла
 func (a *Analyzer) HandleOpenat(event events.OpenatEvent) {
 	// 1. Нормализация строк
 	rawFilename := string(bytes.TrimRight(event.Filename[:], "\x00"))
-	comm := string(bytes.TrimRight(event.Comm[:], "\x00"))
+	comm := string(bytes.TrimRight(event.Common.Comm[:], "\x00"))
+	pcomm := string(bytes.TrimRight(event.Common.Pcomm[:], "\x00"))
 
 	// 2. Резолвинг пути (Обогащение)
-	absolutePath := a.resolvePath(event, rawFilename)
+	absolutePath := a.resolvePath(event.Common.Pid, event.Ret, rawFilename)
 
-	// 3. Простой лог со ВСЕЙ информацией в одну строку
-	// Формат: КЛЮЧ:ЗНАЧЕНИЕ
-	log.Printf("[OPENAT] PID:%d PPID:%d UID:%d GID:%d CGROUP:%d COMM:%s PCOMM:%s DFD:%d FLAGS:%d RET:%d RAW:%s PATH:%s",
-		event.Pid,
-		event.Ppid,
-		event.Uid,
-		event.Gid,
-		event.CgroupId,
+	// 3. Лог
+	log.Printf(
+		"[OPENAT] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s FLAGS:%d DFD:%d RET:%d RAW:%q PATH:%q",
+		event.Common.CgroupId,
+		event.Common.Pid,
+		event.Common.Ppid,
+		event.Common.Uid,
+		event.Common.Gid,
 		comm,
-		event.Pcomm,
-		event.Dfd,
+		pcomm,
 		event.Flags,
+		event.Dfd,
 		event.Ret,
 		rawFilename,
 		absolutePath,
 	)
 }
 
-// resolvePath - логика получения абсолютного пути
-func (a *Analyzer) resolvePath(e events.OpenatEvent, filename string) string {
-	// 1. Если есть успешный дескриптор - берем путь из ядра
-	if e.Ret >= 0 {
-		linkPath := fmt.Sprintf("/proc/%d/fd/%d", e.Pid, e.Ret)
+// HandleExecve - Обработка события запуска процесса
+func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
+	// 1. Нормализация строк
+	// В execve Filename - это путь к исполняемому файлу
+	rawFilename := string(bytes.TrimRight(event.Filename[:], "\x00"))
+	comm := string(bytes.TrimRight(event.Common.Comm[:], "\x00"))   // Кто запускал (старое имя)
+	pcomm := string(bytes.TrimRight(event.Common.Pcomm[:], "\x00")) // Родитель
+
+	argsRaw := bytes.TrimRight(event.Args[:], "\x00")
+	args := string(bytes.ReplaceAll(argsRaw, []byte{0}, []byte{' '}))
+
+	// 2. Резолвинг пути
+	// Для execve FD не возвращается как результат (там 0 при успехе),
+	// поэтому передаем -1 вместо file descriptor, чтобы resolvePath использовал только CWD логику
+	absolutePath := a.resolvePath(event.Common.Pid, -1, rawFilename)
+
+	// 3. Лог
+	log.Printf(
+		"[EXECVE] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d RAW:%q PATH:%q ARGS:%s",
+		event.Common.CgroupId,
+		event.Common.Pid,
+		event.Common.Ppid,
+		event.Common.Uid,
+		event.Common.Gid,
+		comm,
+		pcomm,
+		event.Ret,
+		rawFilename,
+		absolutePath,
+		args,
+	)
+}
+
+// resolvePath - Универсальная логика получения абсолютного пути
+// pid - ID процесса
+// fd - файловый дескриптор (если есть, иначе -1)
+// filename - исходное имя файла (может быть относительным)
+func (a *Analyzer) resolvePath(pid uint32, fd int32, filename string) string {
+	// 1. Если есть успешный дескриптор (для openat) - пробуем взять путь из /proc/PID/fd/FD
+	if fd >= 0 {
+		linkPath := fmt.Sprintf("/proc/%d/fd/%d", pid, fd)
 		if realPath, err := os.Readlink(linkPath); err == nil {
 			return realPath
 		}
 	}
 
-	// 2. Если путь уже абсолютный
+	// 2. Если путь уже абсолютный, возвращаем как есть
 	if strings.HasPrefix(filename, "/") {
 		return filename
 	}
 
-	// 3. Если путь относительный - склеиваем с CWD
-	cwdLink := fmt.Sprintf("/proc/%d/cwd", e.Pid)
+	// 3. Если путь относительный - склеиваем с CWD процесса
+	cwdLink := fmt.Sprintf("/proc/%d/cwd", pid)
 	if cwd, err := os.Readlink(cwdLink); err == nil {
 		return filepath.Join(cwd, filename)
 	}
 
-	// 4. Не удалось определить
+	// 4. Если не удалось определить контекст
 	return fmt.Sprintf("UNKNOWN/%s", filename)
 }

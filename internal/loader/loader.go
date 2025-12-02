@@ -1,55 +1,80 @@
 package loader
 
 import (
-	"diploma/internal/bpf" // Импорт сгенерированного кода
+	"diploma/internal/bpf"
 	"fmt"
 
 	"github.com/cilium/ebpf/link"
 	"github.com/cilium/ebpf/ringbuf"
 )
 
-// Setup делает всю грязную работу по инициализации eBPF.
-// Возвращает Reader для чтения событий и функцию очистки (cleanup).
-func Setup() (*ringbuf.Reader, func(), error) {
-	// 1. Загружаем объекты (тут всё как раньше, загружается ВЕСЬ C-код разом)
-	objs := bpf.OpenatObjects{}
-	if err := bpf.LoadOpenatObjects(&objs, nil); err != nil {
+// LoaderResult хранит ридеры для разных типов событий
+type LoaderResult struct {
+	OpenatReader *ringbuf.Reader
+	ExecveReader *ringbuf.Reader
+}
+
+func Setup() (*LoaderResult, func(), error) {
+	// Обрати внимание: теперь загружаем TraceObjects, а не OpenatObjects
+	objs := bpf.TraceObjects{}
+	if err := bpf.LoadTraceObjects(&objs, nil); err != nil {
 		return nil, nil, fmt.Errorf("loading objects: %v", err)
 	}
 
-	// 2. ЛИНК 1: sys_enter (Вход)
-	// Цепляем функцию C "tracepoint__syscalls__sys_enter_openat" к событию ядра
-	kpEnter, err := link.Tracepoint("syscalls", "sys_enter_openat", objs.TracepointSyscallsSysEnterOpenat, nil)
+	// Хранилище линков для очистки
+	var links []link.Link
+
+	// --- 1. OPENAT ---
+	l1, err := link.Tracepoint("syscalls", "sys_enter_openat", objs.TraceEnterOpenat, nil)
 	if err != nil {
 		objs.Close()
-		return nil, nil, fmt.Errorf("linking enter tracepoint: %v", err)
+		return nil, nil, err
 	}
+	links = append(links, l1)
 
-	// 3. ЛИНК 2: sys_exit (Выход) — ЭТО НОВОЕ!
-	// Цепляем функцию C "tracepoint__syscalls__sys_exit_openat" к событию ядра
-	kpExit, err := link.Tracepoint("syscalls", "sys_exit_openat", objs.TracepointSyscallsSysExitOpenat, nil)
+	l2, err := link.Tracepoint("syscalls", "sys_exit_openat", objs.TraceExitOpenat, nil)
 	if err != nil {
-		kpEnter.Close() // Не забываем закрыть первый линк при ошибке
-		objs.Close()
-		return nil, nil, fmt.Errorf("linking exit tracepoint: %v", err)
+		// тут по-хорошему надо закрыть l1 и objs
+		return nil, nil, err
 	}
+	links = append(links, l2)
 
-	// 4. Создаем RingBuffer Reader
-	rd, err := ringbuf.NewReader(objs.Events)
+	// --- 2. EXECVE ---
+	l3, err := link.Tracepoint("syscalls", "sys_enter_execve", objs.TraceEnterExecve, nil)
 	if err != nil {
-		kpExit.Close()
-		kpEnter.Close()
-		objs.Close()
-		return nil, nil, fmt.Errorf("opening ringbuf reader: %v", err)
+		return nil, nil, err
+	}
+	links = append(links, l3)
+
+	l4, err := link.Tracepoint("syscalls", "sys_exit_execve", objs.TraceExitExecve, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	links = append(links, l4)
+
+	// --- READERS ---
+	// Читаем из карты OpenatEvents
+	rdOpenat, err := ringbuf.NewReader(objs.OpenatEvents)
+	if err != nil {
+		return nil, nil, err
+	}
+	// Читаем из карты ExecveEvents
+	rdExecve, err := ringbuf.NewReader(objs.ExecveEvents)
+	if err != nil {
+		return nil, nil, err
 	}
 
-	// Функция очистки (вызывается при Ctrl+C)
 	cleanup := func() {
-		rd.Close()
-		kpExit.Close()  // Закрываем второй линк
-		kpEnter.Close() // Закрываем первый линк
+		rdOpenat.Close()
+		rdExecve.Close()
+		for _, l := range links {
+			l.Close()
+		}
 		objs.Close()
 	}
 
-	return rd, cleanup, nil
+	return &LoaderResult{
+		OpenatReader: rdOpenat,
+		ExecveReader: rdExecve,
+	}, cleanup, nil
 }

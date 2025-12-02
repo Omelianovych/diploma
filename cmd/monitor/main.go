@@ -13,23 +13,20 @@ import (
 func main() {
 	log.Println("Запуск Security Monitor...")
 
-	// 1. LOADER: Инициализируем eBPF
-	// (Вся сложность с rlimit и link спрятана внутри)
-	rd, cleanup, err := loader.Setup()
+	loaded, cleanup, err := loader.Setup()
 	if err != nil {
 		log.Fatalf("Ошибка загрузки: %v", err)
 	}
-	defer cleanup() // Гарантированно выгрузим программу при выходе
+	defer cleanup()
 
-	// 2. ANALYZER: Инициализируем мозг системы
 	engine := analyzer.New()
 
-	// 3. POLLER: Запускаем цикл прослушки в фоне
-	// Мы говорим поллеру:
-	// "Читай из rd, превращай байты в OpenatEvent, и отдавай их методу engine.HandleOpenat"
-	poller.Start(rd, engine.HandleOpenat)
+	// 2. POLLER: Запускаем два независимых потока чтения
+	// poller.Start теперь запускается дважды для разных типов
+	poller.Start(loaded.OpenatReader, engine.HandleOpenat)
+	poller.Start(loaded.ExecveReader, engine.HandleExecve) // Нужно добавить этот метод в Analyzer
 
-	log.Println("Система работает. Нажмите Ctrl+C для выхода.")
+	log.Println("Security Monitor запущен (Openat + Execve)...")
 
 	// 4. Ожидание сигнала (блокируем main)
 	stopper := make(chan os.Signal, 1)
