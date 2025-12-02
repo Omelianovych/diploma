@@ -30,7 +30,7 @@ type ExecveEvent struct {
 	Common   CommonEvent
 	Ret      int32
 	Filename [128]byte
-	Args     [4096]byte
+	Args     [256]byte
 }
 
 // --- Методы String() ---
