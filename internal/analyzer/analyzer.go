@@ -52,8 +52,8 @@ func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
 	comm := string(bytes.TrimRight(event.Common.Comm[:], "\x00"))   // Кто запускал (старое имя)
 	pcomm := string(bytes.TrimRight(event.Common.Pcomm[:], "\x00")) // Родитель
 
-	argsRaw := bytes.TrimRight(event.Args[:], "\x00")
-	args := string(bytes.ReplaceAll(argsRaw, []byte{0}, []byte{' '}))
+	// argsRaw := bytes.TrimRight(event.Args[:], "\x00")
+	// args := string(bytes.ReplaceAll(argsRaw, []byte{0}, []byte{' '}))
 
 	// 2. Резолвинг пути
 	// Для execve FD не возвращается как результат (там 0 при успехе),
@@ -73,7 +73,7 @@ func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
 		event.Ret,
 		rawFilename,
 		absolutePath,
-		args,
+		// args,
 	)
 }
 

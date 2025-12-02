@@ -7,7 +7,6 @@
 #define TASK_COMM_LEN 16
 #define FILE_NAME_LEN 128
 #define ARGS_LEN 256
-// ARGS_LEN должен быть степенью двойки для маски (256 = 0xFF + 1)
 #define ARGS_MASK 255
 #define MAX_ARGS_COUNT 6
 
@@ -146,7 +145,6 @@ int trace_exit_openat(struct trace_event_raw_sys_exit *ctx) {
 }
 
 // --- EXECVE ---
-
 SEC("tracepoint/syscalls/sys_enter_execve")
 int trace_enter_execve(struct trace_event_raw_sys_enter *ctx) {
   u64 id = bpf_get_current_pid_tgid();
@@ -157,54 +155,12 @@ int trace_enter_execve(struct trace_event_raw_sys_enter *ctx) {
   if (!args)
     return 0;
 
-  // memset заменен на явное зануление первого байта для экономии инструкций,
-  // но для чистоты лучше memset, если компилятор позволяет.
+  // Очистка памяти. Это занулит и args->args, так что Go получит пустую строку.
   __builtin_memset(args, 0, sizeof(*args));
 
+  // Читаем ТОЛЬКО имя файла (безопасно)
   bpf_probe_read_user_str(&args->filename, sizeof(args->filename),
                           (char *)ctx->args[0]);
-
-  const char **argv = (const char **)(ctx->args[1]);
-  if (argv) {
-    // Используем u32 для индексации
-    u32 offset = 0;
-
-#pragma unroll
-    for (int i = 0; i < MAX_ARGS_COUNT; i++) {
-      const char *arg_ptr;
-      bpf_probe_read_user(&arg_ptr, sizeof(arg_ptr), &argv[i]);
-      if (!arg_ptr)
-        break;
-
-      // 1. Логическая проверка выхода за границы
-      if (offset >= ARGS_LEN)
-        break;
-
-      // 2. !!! MAGIC TRICK !!!
-      // Накладываем маску. Теперь верификатор ЗНАЕТ, что safe_offset <= 255.
-      u32 safe_offset = offset & ARGS_MASK;
-
-      // 3. Вычисляем оставшееся место
-      // Здесь верификатор может параноить на вычитании, поэтому используем
-      // маску снова Но проще сказать ему читать ограниченный кусок.
-
-      // Пишем по безопасному смещению
-      // ARGS_LEN (256) - safe_offset всегда >= 1
-      int ret = bpf_probe_read_user_str(&args->args[safe_offset],
-                                        ARGS_LEN - safe_offset, arg_ptr);
-
-      if (ret > 0) {
-        offset += ret;
-        // Искусственно ограничиваем offset, чтобы верификатор не думал, что он
-        // растет бесконечно
-        if (offset >= ARGS_LEN) {
-          break;
-        }
-      } else {
-        break;
-      }
-    }
-  }
 
   bpf_map_update_elem(&execve_tmp_storage, &tid, args, BPF_ANY);
   return 0;
