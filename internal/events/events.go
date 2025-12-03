@@ -3,6 +3,7 @@ package events
 import (
 	"bytes"
 	"fmt"
+	"strings"
 )
 
 // CommonEvent - общая часть для всех событий (должна совпадать с C struct common_event)
@@ -25,34 +26,29 @@ type OpenatEvent struct {
 	Filename [128]byte
 }
 
-// ExecveEvent (должна совпадать с C struct execve_event)
+// ExecveEvent обновился! Теперь Args это массив массивов.
+// [6][42]byte соответствует char args[6][42] в C
 type ExecveEvent struct {
 	Common   CommonEvent
 	Ret      int32
 	Filename [128]byte
-	Args     [256]byte
+	Args     [6][42]byte
 }
 
 // --- Методы String() ---
+
 func cleanString(data []byte) string {
-	// 1. Находим первый нулевой байт, чтобы отсечь хвост
+	// Триммим нули справа
 	n := bytes.IndexByte(data, 0)
 	if n == -1 {
-		n = len(data)
+		return string(data)
 	}
-	// Но wait! У нас аргументы разделены нулями: "arg1\0arg2\0\0..."
-	// Поэтому мы ищем ДВОЙНОЙ ноль или конец данных, либо просто заменяем все нули.
-
-	// Правильный подход для Args:
-	// Триммим правые нули
-	trimmed := bytes.TrimRight(data, "\x00")
-	// Заменяем оставшиеся нули (разделители) на пробелы
-	return string(bytes.ReplaceAll(trimmed, []byte{0}, []byte{' '}))
+	return string(data[:n])
 }
 
 func (e OpenatEvent) String() string {
-	comm := string(bytes.TrimRight(e.Common.Comm[:], "\x00"))
-	filename := string(bytes.TrimRight(e.Filename[:], "\x00"))
+	comm := cleanString(e.Common.Comm[:])
+	filename := cleanString(e.Filename[:])
 
 	status := "SUCCESS"
 	if e.Ret < 0 {
@@ -66,11 +62,19 @@ func (e OpenatEvent) String() string {
 }
 
 func (e ExecveEvent) String() string {
-	comm := string(bytes.TrimRight(e.Common.Comm[:], "\x00"))
-	filename := string(bytes.TrimRight(e.Filename[:], "\x00"))
+	comm := cleanString(e.Common.Comm[:])
+	filename := cleanString(e.Filename[:])
 
-	// Используем новую логику очистки для аргументов
-	args := cleanString(e.Args[:])
+	// Собираем аргументы из массива в одну строку
+	var argsList []string
+	for _, argRaw := range e.Args {
+		// Очищаем каждый аргумент от нулей
+		argStr := cleanString(argRaw[:])
+		if argStr != "" {
+			argsList = append(argsList, argStr)
+		}
+	}
+	args := strings.Join(argsList, " ")
 
 	return fmt.Sprintf("[EXECVE] PID:%d COMM:%s EXEC:%s ARGS:%s",
 		e.Common.Pid, comm, filename, args)

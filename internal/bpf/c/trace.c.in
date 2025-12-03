@@ -6,9 +6,10 @@
 
 #define TASK_COMM_LEN 16
 #define FILE_NAME_LEN 128
-#define ARGS_LEN 256
-#define ARGS_MASK 255
+// Максимум 6 аргументов
 #define MAX_ARGS_COUNT 6
+// Длина одного аргумента
+#define ARG_SIZE 42
 
 struct common_event {
   u64 cgroup_id;
@@ -28,11 +29,12 @@ struct openat_event {
   char filename[FILE_NAME_LEN];
 };
 
+// Изменили структуру: теперь args это массив строк, а не одна строка
 struct execve_event {
   struct common_event common;
   int ret;
   char filename[FILE_NAME_LEN];
-  char args[ARGS_LEN];
+  char args[MAX_ARGS_COUNT][ARG_SIZE];
 };
 
 struct openat_args_t {
@@ -41,9 +43,10 @@ struct openat_args_t {
   char filename[FILE_NAME_LEN];
 };
 
+// Промежуточное хранилище тоже обновляем
 struct execve_args_t {
   char filename[FILE_NAME_LEN];
-  char args[ARGS_LEN];
+  char args[MAX_ARGS_COUNT][ARG_SIZE];
 };
 
 // --- MAPS ---
@@ -155,12 +158,33 @@ int trace_enter_execve(struct trace_event_raw_sys_enter *ctx) {
   if (!args)
     return 0;
 
-  // Очистка памяти. Это занулит и args->args, так что Go получит пустую строку.
+  // Очистка памяти
   __builtin_memset(args, 0, sizeof(*args));
 
-  // Читаем ТОЛЬКО имя файла (безопасно)
+  // 1. Имя файла
   bpf_probe_read_user_str(&args->filename, sizeof(args->filename),
                           (char *)ctx->args[0]);
+
+  // 2. Аргументы
+  const char **argv = (const char **)ctx->args[1];
+
+  if (argv) {
+// Loop unrolling is mandatory for verifier to track index bounds
+#pragma unroll
+    for (int i = 0; i < MAX_ARGS_COUNT; i++) {
+      const char *argp;
+
+      // Читаем указатель на строку
+      if (bpf_probe_read_user(&argp, sizeof(argp), &argv[i]) < 0 || !argp) {
+        // Если аргументов меньше 6, мы тут остановимся
+        break;
+      }
+
+      // Читаем саму строку прямо в ячейку массива args[i]
+      // Никаких offset, никакой сложной арифметики. Верификатор счастлив.
+      bpf_probe_read_user_str(&args->args[i], ARG_SIZE, argp);
+    }
+  }
 
   bpf_map_update_elem(&execve_tmp_storage, &tid, args, BPF_ANY);
   return 0;
@@ -184,8 +208,12 @@ int trace_exit_execve(struct trace_event_raw_sys_exit *ctx) {
 
   fill_common_event(&e->common);
   e->ret = (int)ctx->ret;
+
+  // Копируем имя файла
   bpf_probe_read_kernel(&e->filename, sizeof(e->filename),
                         saved_args->filename);
+
+  // Копируем весь массив аргументов разом (структуры идентичны)
   bpf_probe_read_kernel(&e->args, sizeof(e->args), saved_args->args);
 
   bpf_ringbuf_submit(e, 0);

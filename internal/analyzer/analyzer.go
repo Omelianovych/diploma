@@ -45,6 +45,38 @@ func (a *Analyzer) HandleOpenat(event events.OpenatEvent) {
 }
 
 // HandleExecve - Обработка события запуска процесса
+// func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
+// 	// 1. Нормализация строк
+// 	// В execve Filename - это путь к исполняемому файлу
+// 	rawFilename := string(bytes.TrimRight(event.Filename[:], "\x00"))
+// 	comm := string(bytes.TrimRight(event.Common.Comm[:], "\x00"))   // Кто запускал (старое имя)
+// 	pcomm := string(bytes.TrimRight(event.Common.Pcomm[:], "\x00")) // Родитель
+//
+// 	argsRaw := bytes.TrimRight(event.Args[:], "\x00")
+// 	args := string(bytes.ReplaceAll(argsRaw, []byte{0}, []byte{' '}))
+//
+// 	// 2. Резолвинг пути
+// 	// Для execve FD не возвращается как результат (там 0 при успехе),
+// 	// поэтому передаем -1 вместо file descriptor, чтобы resolvePath использовал только CWD логику
+// 	absolutePath := a.resolvePath(event.Common.Pid, -1, rawFilename)
+//
+// 	// 3. Лог
+// 	log.Printf(
+// 		"[EXECVE] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d RAW:%q PATH:%q ARGS:%s",
+// 		event.Common.CgroupId,
+// 		event.Common.Pid,
+// 		event.Common.Ppid,
+// 		event.Common.Uid,
+// 		event.Common.Gid,
+// 		comm,
+// 		pcomm,
+// 		event.Ret,
+// 		rawFilename,
+// 		absolutePath,
+// 		args,
+// 	)
+// }
+
 func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
 	// 1. Нормализация строк
 	// В execve Filename - это путь к исполняемому файлу
@@ -52,12 +84,30 @@ func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
 	comm := string(bytes.TrimRight(event.Common.Comm[:], "\x00"))   // Кто запускал (старое имя)
 	pcomm := string(bytes.TrimRight(event.Common.Pcomm[:], "\x00")) // Родитель
 
-	argsRaw := bytes.TrimRight(event.Args[:], "\x00")
-	args := string(bytes.ReplaceAll(argsRaw, []byte{0}, []byte{' '}))
+	// --- НОВАЯ ЛОГИКА ДЛЯ ARGS ---
+	// Раньше: argsRaw := bytes.TrimRight(event.Args[:], "\x00") ...
+	// Теперь: event.Args это массив [6][42]byte. Распаковываем его:
+	var argsList []string
+	for _, chunk := range event.Args {
+		// Ищем конец строки (нулевой байт) внутри чанка
+		n := bytes.IndexByte(chunk[:], 0)
+		if n == -1 {
+			n = len(chunk)
+		}
+		// Если чанк пустой (начинается с 0), значит аргументов больше нет
+		if n == 0 {
+			continue
+		}
+		argsList = append(argsList, string(chunk[:n]))
+	}
+	// Собираем в строку через пробел для лога
+	args := strings.Join(argsList, " ")
+	// -----------------------------
 
 	// 2. Резолвинг пути
 	// Для execve FD не возвращается как результат (там 0 при успехе),
-	// поэтому передаем -1 вместо file descriptor, чтобы resolvePath использовал только CWD логику
+	// поэтому передаем -1 вместо file descriptor.
+	// (Предполагается, что метод resolvePath определен в rules.go или другом файле пакета analyzer)
 	absolutePath := a.resolvePath(event.Common.Pid, -1, rawFilename)
 
 	// 3. Лог
