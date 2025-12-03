@@ -17,6 +17,7 @@ type TraceExecveArgsT struct {
 	_        structs.HostLayout
 	Filename [128]int8
 	Args     [6][42]int8
+	Envs     [6][42]int8
 }
 
 type TraceOpenatArgsT struct {

@@ -87,23 +87,13 @@ func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
 	// --- НОВАЯ ЛОГИКА ДЛЯ ARGS ---
 	// Раньше: argsRaw := bytes.TrimRight(event.Args[:], "\x00") ...
 	// Теперь: event.Args это массив [6][42]byte. Распаковываем его:
-	var argsList []string
-	for _, chunk := range event.Args {
-		// Ищем конец строки (нулевой байт) внутри чанка
-		n := bytes.IndexByte(chunk[:], 0)
-		if n == -1 {
-			n = len(chunk)
-		}
-		// Если чанк пустой (начинается с 0), значит аргументов больше нет
-		if n == 0 {
-			continue
-		}
-		argsList = append(argsList, string(chunk[:n]))
-	}
-	// Собираем в строку через пробел для лога
+	argsList := extractArgs(event.Args)
 	args := strings.Join(argsList, " ")
-	// -----------------------------
 
+	// 3. Распаковываем ENVs (НОВОЕ)
+	// Мы используем ту же функцию helper, так как структура данных идентична
+	envsList := extractArgs(event.Envs)
+	envs := strings.Join(envsList, " ")
 	// 2. Резолвинг пути
 	// Для execve FD не возвращается как результат (там 0 при успехе),
 	// поэтому передаем -1 вместо file descriptor.
@@ -112,7 +102,7 @@ func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
 
 	// 3. Лог
 	log.Printf(
-		"[EXECVE] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d RAW:%q PATH:%q ARGS:%s",
+		"[EXECVE] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d RAW:%q PATH:%q ARGS:%s ENV:%s",
 		event.Common.CgroupId,
 		event.Common.Pid,
 		event.Common.Ppid,
@@ -124,7 +114,23 @@ func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
 		rawFilename,
 		absolutePath,
 		args,
+		envs,
 	)
+}
+
+func extractArgs(raw [6][42]byte) []string {
+	var res []string
+	for _, chunk := range raw {
+		n := bytes.IndexByte(chunk[:], 0)
+		if n == -1 {
+			n = len(chunk)
+		}
+		if n == 0 {
+			continue
+		}
+		res = append(res, string(chunk[:n]))
+	}
+	return res
 }
 
 // resolvePath - Универсальная логика получения абсолютного пути

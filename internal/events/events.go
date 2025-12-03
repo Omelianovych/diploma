@@ -33,6 +33,7 @@ type ExecveEvent struct {
 	Ret      int32
 	Filename [128]byte
 	Args     [6][42]byte
+	Envs     [6][42]byte
 }
 
 // --- Методы String() ---
