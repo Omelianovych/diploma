@@ -87,13 +87,13 @@ func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
 	// --- НОВАЯ ЛОГИКА ДЛЯ ARGS ---
 	// Раньше: argsRaw := bytes.TrimRight(event.Args[:], "\x00") ...
 	// Теперь: event.Args это массив [6][42]byte. Распаковываем его:
-	argsList := extractArgs(event.Args)
-	args := strings.Join(argsList, " ")
+	argvList := extractArgs(event.Argv)
+	argv := strings.Join(argvList, " ")
 
 	// 3. Распаковываем ENVs (НОВОЕ)
 	// Мы используем ту же функцию helper, так как структура данных идентична
-	envsList := extractArgs(event.Envs)
-	envs := strings.Join(envsList, " ")
+	envpList := extractArgs(event.Envp)
+	envp := strings.Join(envpList, " ")
 	// 2. Резолвинг пути
 	// Для execve FD не возвращается как результат (там 0 при успехе),
 	// поэтому передаем -1 вместо file descriptor.
@@ -113,12 +113,12 @@ func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
 		event.Ret,
 		rawFilename,
 		absolutePath,
-		args,
-		envs,
+		argv,
+		envp,
 	)
 }
 
-func extractArgs(raw [6][42]byte) []string {
+func extractArgs(raw [24][64]byte) []string {
 	var res []string
 	for _, chunk := range raw {
 		n := bytes.IndexByte(chunk[:], 0)

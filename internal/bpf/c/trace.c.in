@@ -6,10 +6,9 @@
 
 #define TASK_COMM_LEN 16
 #define FILE_NAME_LEN 128
-// Максимум 6 аргументов
-#define MAX_ARGS_COUNT 6
-// Длина одного аргумента
-#define ARG_SIZE 42
+// Максимум 16 аргументов (безопасный лимит для верификатора)
+#define MAX_ARGS_COUNT 24
+#define ARG_SIZE 64
 
 struct common_event {
   u64 cgroup_id;
@@ -29,13 +28,13 @@ struct openat_event {
   char filename[FILE_NAME_LEN];
 };
 
-// Изменили структуру: теперь args это массив строк, а не одна строка
+// Изменили структуру: используем argv и envp
 struct execve_event {
   struct common_event common;
   int ret;
   char filename[FILE_NAME_LEN];
-  char args[MAX_ARGS_COUNT][ARG_SIZE];
-  char envs[MAX_ARGS_COUNT][ARG_SIZE];
+  char argv[MAX_ARGS_COUNT][ARG_SIZE]; // Было args
+  char envp[MAX_ARGS_COUNT][ARG_SIZE]; // Было envs
 };
 
 struct openat_args_t {
@@ -47,8 +46,8 @@ struct openat_args_t {
 // Промежуточное хранилище тоже обновляем
 struct execve_args_t {
   char filename[FILE_NAME_LEN];
-  char args[MAX_ARGS_COUNT][ARG_SIZE];
-  char envs[MAX_ARGS_COUNT][ARG_SIZE];
+  char argv[MAX_ARGS_COUNT][ARG_SIZE]; // Было args
+  char envp[MAX_ARGS_COUNT][ARG_SIZE]; // Было envs
 };
 
 // --- MAPS ---
@@ -160,33 +159,35 @@ int trace_enter_execve(struct trace_event_raw_sys_enter *ctx) {
   if (!args)
     return 0;
 
-  // Очистка памяти
-  __builtin_memset(args, 0, sizeof(*args));
+  // Очистка памяти вручную (первые байты)
+  args->filename[0] = '\0';
+
+#pragma unroll
+  for (int i = 0; i < MAX_ARGS_COUNT; i++) {
+    args->argv[i][0] = '\0'; // Было args
+    args->envp[i][0] = '\0'; // Было envs
+  }
 
   // 1. Имя файла
   bpf_probe_read_user_str(&args->filename, sizeof(args->filename),
                           (char *)ctx->args[0]);
 
-  // 2. Аргументы
+  // 2. Аргументы (argv)
   const char **argv = (const char **)ctx->args[1];
 
   if (argv) {
-// Loop unrolling is mandatory for verifier to track index bounds
 #pragma unroll
     for (int i = 0; i < MAX_ARGS_COUNT; i++) {
       const char *argp;
-
-      // Читаем указатель на строку
       if (bpf_probe_read_user(&argp, sizeof(argp), &argv[i]) < 0 || !argp) {
-        // Если аргументов меньше 6, мы тут остановимся
         break;
       }
-
-      // Читаем саму строку прямо в ячейку массива args[i]
-      // Никаких offset, никакой сложной арифметики. Верификатор счастлив.
-      bpf_probe_read_user_str(&args->args[i], ARG_SIZE, argp);
+      // Пишем в argv
+      bpf_probe_read_user_str(&args->argv[i], ARG_SIZE, argp);
     }
   }
+
+  // 3. Окружение (envp)
   const char **envp = (const char **)ctx->args[2];
   if (envp) {
 #pragma unroll
@@ -195,7 +196,8 @@ int trace_enter_execve(struct trace_event_raw_sys_enter *ctx) {
       if (bpf_probe_read_user(&env_ptr, sizeof(env_ptr), &envp[i]) < 0 ||
           !env_ptr)
         break;
-      bpf_probe_read_user_str(&args->envs[i], ARG_SIZE, env_ptr);
+      // Пишем в envp
+      bpf_probe_read_user_str(&args->envp[i], ARG_SIZE, env_ptr);
     }
   }
   bpf_map_update_elem(&execve_tmp_storage, &tid, args, BPF_ANY);
@@ -219,16 +221,20 @@ int trace_exit_execve(struct trace_event_raw_sys_exit *ctx) {
   }
 
   fill_common_event(&e->common);
-  e->ret = (int)ctx->ret;
 
-  // Копируем имя файла
+  // Кастим контекст для верности (хотя оффсеты ret обычно совпадают)
+  struct trace_event_raw_sys_exit *exit_ctx =
+      (struct trace_event_raw_sys_exit *)ctx;
+  e->ret = (int)exit_ctx->ret;
+
   bpf_probe_read_kernel(&e->filename, sizeof(e->filename),
                         saved_args->filename);
 
-  // Копируем весь массив аргументов разом (структуры идентичны)
-  bpf_probe_read_kernel(&e->args, sizeof(e->args), saved_args->args);
+  // Копируем argv
+  bpf_probe_read_kernel(&e->argv, sizeof(e->argv), saved_args->argv);
 
-  bpf_probe_read_kernel(&e->envs, sizeof(e->envs), saved_args->envs);
+  // Копируем envp
+  bpf_probe_read_kernel(&e->envp, sizeof(e->envp), saved_args->envp);
 
   bpf_ringbuf_submit(e, 0);
   bpf_map_delete_elem(&execve_tmp_storage, &tid);

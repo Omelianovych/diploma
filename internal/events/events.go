@@ -32,8 +32,8 @@ type ExecveEvent struct {
 	Common   CommonEvent
 	Ret      int32
 	Filename [128]byte
-	Args     [6][42]byte
-	Envs     [6][42]byte
+	Argv     [24][64]byte
+	Envp     [24][64]byte
 }
 
 // --- Методы String() ---
@@ -66,10 +66,9 @@ func (e ExecveEvent) String() string {
 	comm := cleanString(e.Common.Comm[:])
 	filename := cleanString(e.Filename[:])
 
-	// Собираем аргументы из массива в одну строку
+	// Собираем аргументы из массива Argv
 	var argsList []string
-	for _, argRaw := range e.Args {
-		// Очищаем каждый аргумент от нулей
+	for _, argRaw := range e.Argv {
 		argStr := cleanString(argRaw[:])
 		if argStr != "" {
 			argsList = append(argsList, argStr)
