@@ -24,7 +24,8 @@ func main() {
 	// 2. POLLER: Запускаем два независимых потока чтения
 	// poller.Start теперь запускается дважды для разных типов
 	poller.Start(loaded.OpenatReader, engine.HandleOpenat)
-	poller.Start(loaded.ExecveReader, engine.HandleExecve) // Нужно добавить этот метод в Analyzer
+	poller.Start(loaded.ExecveReader, engine.HandleExecve)   // Нужно добавить этот метод в Analyzer
+	poller.Start(loaded.ConnectReader, engine.HandleConnect) // Нужно добавить этот метод в Analyzer
 
 	log.Println("Security Monitor запущен (Openat + Execve)...")
 

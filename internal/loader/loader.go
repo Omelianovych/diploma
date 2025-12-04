@@ -10,8 +10,9 @@ import (
 
 // LoaderResult хранит ридеры для разных типов событий
 type LoaderResult struct {
-	OpenatReader *ringbuf.Reader
-	ExecveReader *ringbuf.Reader
+	OpenatReader  *ringbuf.Reader
+	ExecveReader  *ringbuf.Reader
+	ConnectReader *ringbuf.Reader
 }
 
 func Setup() (*LoaderResult, func(), error) {
@@ -52,6 +53,25 @@ func Setup() (*LoaderResult, func(), error) {
 	}
 	links = append(links, l4)
 
+	l5, err := link.Tracepoint("syscalls", "sys_enter_connect", objs.TraceEnterConnect, nil)
+	if err != nil {
+		for _, l := range links {
+			l.Close()
+		}
+		objs.Close()
+		return nil, nil, fmt.Errorf("link connect enter: %v", err)
+	}
+	links = append(links, l5)
+
+	l6, err := link.Tracepoint("syscalls", "sys_exit_connect", objs.TraceExitConnect, nil)
+	if err != nil {
+		for _, l := range links {
+			l.Close()
+		}
+		objs.Close()
+		return nil, nil, fmt.Errorf("link connect exit: %v", err)
+	}
+	links = append(links, l6)
 	// --- READERS ---
 	// Читаем из карты OpenatEvents
 	rdOpenat, err := ringbuf.NewReader(objs.OpenatEvents)
@@ -64,9 +84,20 @@ func Setup() (*LoaderResult, func(), error) {
 		return nil, nil, err
 	}
 
+	rdConnect, err := ringbuf.NewReader(objs.ConnectEvents)
+	if err != nil {
+		rdOpenat.Close()
+		rdExecve.Close()
+		for _, l := range links {
+			l.Close()
+		}
+		objs.Close()
+		return nil, nil, fmt.Errorf("reader connect: %v", err)
+	}
 	cleanup := func() {
 		rdOpenat.Close()
 		rdExecve.Close()
+		rdConnect.Close()
 		for _, l := range links {
 			l.Close()
 		}
@@ -74,7 +105,8 @@ func Setup() (*LoaderResult, func(), error) {
 	}
 
 	return &LoaderResult{
-		OpenatReader: rdOpenat,
-		ExecveReader: rdExecve,
+		OpenatReader:  rdOpenat,
+		ExecveReader:  rdExecve,
+		ConnectReader: rdConnect,
 	}, cleanup, nil
 }

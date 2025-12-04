@@ -3,8 +3,10 @@ package analyzer
 import (
 	"bytes"
 	"diploma/internal/events"
+	"encoding/binary"
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
@@ -115,6 +117,34 @@ func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
 		absolutePath,
 		argv,
 		envp,
+	)
+}
+
+func (a *Analyzer) HandleConnect(event events.ConnectEvent) {
+	comm := string(bytes.TrimRight(event.Common.Comm[:], "\x00"))
+	pcomm := string(bytes.TrimRight(event.Common.Pcomm[:], "\x00"))
+
+	// Конвертация IP (u32 -> string)
+	ip := make(net.IP, 4)
+	binary.LittleEndian.PutUint32(ip, event.Ip)
+	ipStr := ip.String()
+
+	// Конвертация Порта (Big Endian -> Little Endian)
+	port := (event.Port<<8)&0xff00 | (event.Port>>8)&0x00ff
+
+	log.Printf(
+		"[CONNECT] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d FD:%d IP:%s PORT:%d",
+		event.Common.CgroupId,
+		event.Common.Pid,
+		event.Common.Ppid,
+		event.Common.Uid,
+		event.Common.Gid,
+		comm,
+		pcomm,
+		event.Ret,
+		event.Fd,
+		ipStr,
+		port,
 	)
 }
 

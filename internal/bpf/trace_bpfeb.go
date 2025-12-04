@@ -13,6 +13,14 @@ import (
 	"github.com/cilium/ebpf"
 )
 
+type TraceConnectArgsT struct {
+	_    structs.HostLayout
+	Fd   int32
+	Ip   uint32
+	Port uint16
+	_    [2]byte
+}
+
 type TraceExecveArgsT struct {
 	_        structs.HostLayout
 	Filename [128]int8
@@ -69,21 +77,25 @@ type TraceSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type TraceProgramSpecs struct {
-	TraceEnterExecve *ebpf.ProgramSpec `ebpf:"trace_enter_execve"`
-	TraceEnterOpenat *ebpf.ProgramSpec `ebpf:"trace_enter_openat"`
-	TraceExitExecve  *ebpf.ProgramSpec `ebpf:"trace_exit_execve"`
-	TraceExitOpenat  *ebpf.ProgramSpec `ebpf:"trace_exit_openat"`
+	TraceEnterConnect *ebpf.ProgramSpec `ebpf:"trace_enter_connect"`
+	TraceEnterExecve  *ebpf.ProgramSpec `ebpf:"trace_enter_execve"`
+	TraceEnterOpenat  *ebpf.ProgramSpec `ebpf:"trace_enter_openat"`
+	TraceExitConnect  *ebpf.ProgramSpec `ebpf:"trace_exit_connect"`
+	TraceExitExecve   *ebpf.ProgramSpec `ebpf:"trace_exit_execve"`
+	TraceExitOpenat   *ebpf.ProgramSpec `ebpf:"trace_exit_openat"`
 }
 
 // TraceMapSpecs contains maps before they are loaded into the kernel.
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type TraceMapSpecs struct {
-	ExecveEvents     *ebpf.MapSpec `ebpf:"execve_events"`
-	ExecveHeap       *ebpf.MapSpec `ebpf:"execve_heap"`
-	ExecveTmpStorage *ebpf.MapSpec `ebpf:"execve_tmp_storage"`
-	OpenatEvents     *ebpf.MapSpec `ebpf:"openat_events"`
-	OpenatTmpStorage *ebpf.MapSpec `ebpf:"openat_tmp_storage"`
+	ConnectEvents     *ebpf.MapSpec `ebpf:"connect_events"`
+	ConnectTmpStorage *ebpf.MapSpec `ebpf:"connect_tmp_storage"`
+	ExecveEvents      *ebpf.MapSpec `ebpf:"execve_events"`
+	ExecveHeap        *ebpf.MapSpec `ebpf:"execve_heap"`
+	ExecveTmpStorage  *ebpf.MapSpec `ebpf:"execve_tmp_storage"`
+	OpenatEvents      *ebpf.MapSpec `ebpf:"openat_events"`
+	OpenatTmpStorage  *ebpf.MapSpec `ebpf:"openat_tmp_storage"`
 }
 
 // TraceVariableSpecs contains global variables before they are loaded into the kernel.
@@ -112,15 +124,19 @@ func (o *TraceObjects) Close() error {
 //
 // It can be passed to LoadTraceObjects or ebpf.CollectionSpec.LoadAndAssign.
 type TraceMaps struct {
-	ExecveEvents     *ebpf.Map `ebpf:"execve_events"`
-	ExecveHeap       *ebpf.Map `ebpf:"execve_heap"`
-	ExecveTmpStorage *ebpf.Map `ebpf:"execve_tmp_storage"`
-	OpenatEvents     *ebpf.Map `ebpf:"openat_events"`
-	OpenatTmpStorage *ebpf.Map `ebpf:"openat_tmp_storage"`
+	ConnectEvents     *ebpf.Map `ebpf:"connect_events"`
+	ConnectTmpStorage *ebpf.Map `ebpf:"connect_tmp_storage"`
+	ExecveEvents      *ebpf.Map `ebpf:"execve_events"`
+	ExecveHeap        *ebpf.Map `ebpf:"execve_heap"`
+	ExecveTmpStorage  *ebpf.Map `ebpf:"execve_tmp_storage"`
+	OpenatEvents      *ebpf.Map `ebpf:"openat_events"`
+	OpenatTmpStorage  *ebpf.Map `ebpf:"openat_tmp_storage"`
 }
 
 func (m *TraceMaps) Close() error {
 	return _TraceClose(
+		m.ConnectEvents,
+		m.ConnectTmpStorage,
 		m.ExecveEvents,
 		m.ExecveHeap,
 		m.ExecveTmpStorage,
@@ -139,16 +155,20 @@ type TraceVariables struct {
 //
 // It can be passed to LoadTraceObjects or ebpf.CollectionSpec.LoadAndAssign.
 type TracePrograms struct {
-	TraceEnterExecve *ebpf.Program `ebpf:"trace_enter_execve"`
-	TraceEnterOpenat *ebpf.Program `ebpf:"trace_enter_openat"`
-	TraceExitExecve  *ebpf.Program `ebpf:"trace_exit_execve"`
-	TraceExitOpenat  *ebpf.Program `ebpf:"trace_exit_openat"`
+	TraceEnterConnect *ebpf.Program `ebpf:"trace_enter_connect"`
+	TraceEnterExecve  *ebpf.Program `ebpf:"trace_enter_execve"`
+	TraceEnterOpenat  *ebpf.Program `ebpf:"trace_enter_openat"`
+	TraceExitConnect  *ebpf.Program `ebpf:"trace_exit_connect"`
+	TraceExitExecve   *ebpf.Program `ebpf:"trace_exit_execve"`
+	TraceExitOpenat   *ebpf.Program `ebpf:"trace_exit_openat"`
 }
 
 func (p *TracePrograms) Close() error {
 	return _TraceClose(
+		p.TraceEnterConnect,
 		p.TraceEnterExecve,
 		p.TraceEnterOpenat,
+		p.TraceExitConnect,
 		p.TraceExitExecve,
 		p.TraceExitOpenat,
 	)
