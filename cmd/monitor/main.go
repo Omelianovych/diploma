@@ -26,6 +26,7 @@ func main() {
 	poller.Start(loaded.OpenatReader, engine.HandleOpenat)
 	poller.Start(loaded.ExecveReader, engine.HandleExecve)   // Нужно добавить этот метод в Analyzer
 	poller.Start(loaded.ConnectReader, engine.HandleConnect) // Нужно добавить этот метод в Analyzer
+	poller.Start(loaded.AcceptReader, engine.HandleAccept)
 
 	log.Println("Security Monitor запущен (Openat + Execve)...")
 

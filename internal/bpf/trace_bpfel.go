@@ -13,6 +13,11 @@ import (
 	"github.com/cilium/ebpf"
 )
 
+type TraceAcceptArgsT struct {
+	_    structs.HostLayout
+	Addr uint64
+}
+
 type TraceConnectArgsT struct {
 	_    structs.HostLayout
 	Fd   int32
@@ -77,9 +82,11 @@ type TraceSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type TraceProgramSpecs struct {
+	TraceEnterAccept4 *ebpf.ProgramSpec `ebpf:"trace_enter_accept4"`
 	TraceEnterConnect *ebpf.ProgramSpec `ebpf:"trace_enter_connect"`
 	TraceEnterExecve  *ebpf.ProgramSpec `ebpf:"trace_enter_execve"`
 	TraceEnterOpenat  *ebpf.ProgramSpec `ebpf:"trace_enter_openat"`
+	TraceExitAccept4  *ebpf.ProgramSpec `ebpf:"trace_exit_accept4"`
 	TraceExitConnect  *ebpf.ProgramSpec `ebpf:"trace_exit_connect"`
 	TraceExitExecve   *ebpf.ProgramSpec `ebpf:"trace_exit_execve"`
 	TraceExitOpenat   *ebpf.ProgramSpec `ebpf:"trace_exit_openat"`
@@ -89,6 +96,8 @@ type TraceProgramSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type TraceMapSpecs struct {
+	AcceptEvents      *ebpf.MapSpec `ebpf:"accept_events"`
+	AcceptTmpStorage  *ebpf.MapSpec `ebpf:"accept_tmp_storage"`
 	ConnectEvents     *ebpf.MapSpec `ebpf:"connect_events"`
 	ConnectTmpStorage *ebpf.MapSpec `ebpf:"connect_tmp_storage"`
 	ExecveEvents      *ebpf.MapSpec `ebpf:"execve_events"`
@@ -124,6 +133,8 @@ func (o *TraceObjects) Close() error {
 //
 // It can be passed to LoadTraceObjects or ebpf.CollectionSpec.LoadAndAssign.
 type TraceMaps struct {
+	AcceptEvents      *ebpf.Map `ebpf:"accept_events"`
+	AcceptTmpStorage  *ebpf.Map `ebpf:"accept_tmp_storage"`
 	ConnectEvents     *ebpf.Map `ebpf:"connect_events"`
 	ConnectTmpStorage *ebpf.Map `ebpf:"connect_tmp_storage"`
 	ExecveEvents      *ebpf.Map `ebpf:"execve_events"`
@@ -135,6 +146,8 @@ type TraceMaps struct {
 
 func (m *TraceMaps) Close() error {
 	return _TraceClose(
+		m.AcceptEvents,
+		m.AcceptTmpStorage,
 		m.ConnectEvents,
 		m.ConnectTmpStorage,
 		m.ExecveEvents,
@@ -155,9 +168,11 @@ type TraceVariables struct {
 //
 // It can be passed to LoadTraceObjects or ebpf.CollectionSpec.LoadAndAssign.
 type TracePrograms struct {
+	TraceEnterAccept4 *ebpf.Program `ebpf:"trace_enter_accept4"`
 	TraceEnterConnect *ebpf.Program `ebpf:"trace_enter_connect"`
 	TraceEnterExecve  *ebpf.Program `ebpf:"trace_enter_execve"`
 	TraceEnterOpenat  *ebpf.Program `ebpf:"trace_enter_openat"`
+	TraceExitAccept4  *ebpf.Program `ebpf:"trace_exit_accept4"`
 	TraceExitConnect  *ebpf.Program `ebpf:"trace_exit_connect"`
 	TraceExitExecve   *ebpf.Program `ebpf:"trace_exit_execve"`
 	TraceExitOpenat   *ebpf.Program `ebpf:"trace_exit_openat"`
@@ -165,9 +180,11 @@ type TracePrograms struct {
 
 func (p *TracePrograms) Close() error {
 	return _TraceClose(
+		p.TraceEnterAccept4,
 		p.TraceEnterConnect,
 		p.TraceEnterExecve,
 		p.TraceEnterOpenat,
+		p.TraceExitAccept4,
 		p.TraceExitConnect,
 		p.TraceExitExecve,
 		p.TraceExitOpenat,

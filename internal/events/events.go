@@ -46,6 +46,13 @@ type ConnectEvent struct {
 	Port   uint16 // Порт (Network Byte Order)
 }
 
+type AcceptEvent struct {
+	Common CommonEvent
+	Ret    int32 // Это будет File Descriptor нового сокета
+	Ip     uint32
+	Port   uint16
+}
+
 // --- Методы String() ---
 
 func cleanString(data []byte) string {
@@ -113,4 +120,13 @@ func (e ConnectEvent) String() string {
 
 	return fmt.Sprintf("[CONNECT] PID:%d COMM:%s ADDR:%s:%d RET:%s",
 		e.Common.Pid, comm, ipStr, port, status)
+}
+
+func (e AcceptEvent) String() string {
+	comm := cleanString(e.Common.Comm[:])
+	ipStr := int2ip(e.Ip)
+	port := ntohs(e.Port)
+
+	return fmt.Sprintf("[ACCEPT] PID:%d COMM:%s REMOTE:%s:%d FD:%d",
+		e.Common.Pid, comm, ipStr, port, e.Ret)
 }

@@ -148,6 +148,21 @@ func (a *Analyzer) HandleConnect(event events.ConnectEvent) {
 	)
 }
 
+func (a *Analyzer) HandleAccept(event events.AcceptEvent) {
+	comm := string(bytes.TrimRight(event.Common.Comm[:], "\x00"))
+
+	// Конвертация IP/Port (аналогично Connect)
+	ip := make(net.IP, 4)
+	binary.LittleEndian.PutUint32(ip, event.Ip)
+
+	port := (event.Port<<8)&0xff00 | (event.Port>>8)&0x00ff
+
+	log.Printf(
+		"[ACCEPT] INBOUND CONNECTION -> PID:%d COMM:%s REMOTE_IP:%s REMOTE_PORT:%d SOCKET_FD:%d",
+		event.Common.Pid, comm, ip.String(), port, event.Ret,
+	)
+}
+
 func extractArgs(raw [24][64]byte) []string {
 	var res []string
 	for _, chunk := range raw {
