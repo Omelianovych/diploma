@@ -1,12 +1,9 @@
 package analyzer
 
 import (
-	"bytes"
 	"diploma/internal/events"
-	"encoding/binary"
 	"fmt"
 	"log"
-	"net"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,170 +17,84 @@ func New() *Analyzer {
 
 // HandleOpenat - Обработка события открытия файла
 func (a *Analyzer) HandleOpenat(event events.OpenatEvent) {
-	// 1. Нормализация строк
-	rawFilename := string(bytes.TrimRight(event.Filename[:], "\x00"))
-	comm := string(bytes.TrimRight(event.Common.Comm[:], "\x00"))
-	pcomm := string(bytes.TrimRight(event.Common.Pcomm[:], "\x00"))
+	// 1. Парсинг (используем безопасный BytesToString из events)
+	rawFilename := events.BytesToString(event.Filename[:])
+	comm := events.BytesToString(event.Common.Comm[:])
+	pcomm := events.BytesToString(event.Common.Pcomm[:])
 
-	// 2. Резолвинг пути (Обогащение)
+	// 2. Обогащение (бизнес-логика)
 	absolutePath := a.resolvePath(event.Common.Pid, event.Ret, rawFilename)
 
-	// 3. Лог
+	// 3. Логирование (или подготовка данных для дальнейшей работы)
 	log.Printf(
 		"[OPENAT] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s FLAGS:%d DFD:%d RET:%d RAW:%q PATH:%q",
-		event.Common.CgroupId,
-		event.Common.Pid,
-		event.Common.Ppid,
-		event.Common.Uid,
-		event.Common.Gid,
-		comm,
-		pcomm,
-		event.Flags,
-		event.Dfd,
-		event.Ret,
-		rawFilename,
-		absolutePath,
+		event.Common.CgroupId, event.Common.Pid, event.Common.Ppid,
+		event.Common.Uid, event.Common.Gid,
+		comm, pcomm,
+		event.Flags, event.Dfd, event.Ret,
+		rawFilename, absolutePath,
 	)
 }
 
 // HandleExecve - Обработка события запуска процесса
-// func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
-// 	// 1. Нормализация строк
-// 	// В execve Filename - это путь к исполняемому файлу
-// 	rawFilename := string(bytes.TrimRight(event.Filename[:], "\x00"))
-// 	comm := string(bytes.TrimRight(event.Common.Comm[:], "\x00"))   // Кто запускал (старое имя)
-// 	pcomm := string(bytes.TrimRight(event.Common.Pcomm[:], "\x00")) // Родитель
-//
-// 	argsRaw := bytes.TrimRight(event.Args[:], "\x00")
-// 	args := string(bytes.ReplaceAll(argsRaw, []byte{0}, []byte{' '}))
-//
-// 	// 2. Резолвинг пути
-// 	// Для execve FD не возвращается как результат (там 0 при успехе),
-// 	// поэтому передаем -1 вместо file descriptor, чтобы resolvePath использовал только CWD логику
-// 	absolutePath := a.resolvePath(event.Common.Pid, -1, rawFilename)
-//
-// 	// 3. Лог
-// 	log.Printf(
-// 		"[EXECVE] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d RAW:%q PATH:%q ARGS:%s",
-// 		event.Common.CgroupId,
-// 		event.Common.Pid,
-// 		event.Common.Ppid,
-// 		event.Common.Uid,
-// 		event.Common.Gid,
-// 		comm,
-// 		pcomm,
-// 		event.Ret,
-// 		rawFilename,
-// 		absolutePath,
-// 		args,
-// 	)
-// }
-
 func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
-	// 1. Нормализация строк
-	// В execve Filename - это путь к исполняемому файлу
-	rawFilename := string(bytes.TrimRight(event.Filename[:], "\x00"))
-	comm := string(bytes.TrimRight(event.Common.Comm[:], "\x00"))   // Кто запускал (старое имя)
-	pcomm := string(bytes.TrimRight(event.Common.Pcomm[:], "\x00")) // Родитель
+	// 1. Парсинг
+	rawFilename := events.BytesToString(event.Filename[:])
+	comm := events.BytesToString(event.Common.Comm[:])
+	pcomm := events.BytesToString(event.Common.Pcomm[:])
 
-	// --- НОВАЯ ЛОГИКА ДЛЯ ARGS ---
-	// Раньше: argsRaw := bytes.TrimRight(event.Args[:], "\x00") ...
-	// Теперь: event.Args это массив [6][42]byte. Распаковываем его:
-	argvList := extractArgs(event.Argv)
-	argv := strings.Join(argvList, " ")
+	// Используем перенесенный в events хелпер
+	argv := strings.Join(events.ExtractArgs(event.Argv), " ")
+	envp := strings.Join(events.ExtractArgs(event.Envp), " ")
 
-	// 3. Распаковываем ENVs (НОВОЕ)
-	// Мы используем ту же функцию helper, так как структура данных идентична
-	envpList := extractArgs(event.Envp)
-	envp := strings.Join(envpList, " ")
-	// 2. Резолвинг пути
-	// Для execve FD не возвращается как результат (там 0 при успехе),
-	// поэтому передаем -1 вместо file descriptor.
-	// (Предполагается, что метод resolvePath определен в rules.go или другом файле пакета analyzer)
+	// 2. Обогащение
 	absolutePath := a.resolvePath(event.Common.Pid, -1, rawFilename)
 
-	// 3. Лог
+	// 3. Логирование
 	log.Printf(
 		"[EXECVE] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d RAW:%q PATH:%q ARGS:%s ENV:%s",
-		event.Common.CgroupId,
-		event.Common.Pid,
-		event.Common.Ppid,
-		event.Common.Uid,
-		event.Common.Gid,
-		comm,
-		pcomm,
-		event.Ret,
-		rawFilename,
-		absolutePath,
-		argv,
-		envp,
+		event.Common.CgroupId, event.Common.Pid, event.Common.Ppid,
+		event.Common.Uid, event.Common.Gid,
+		comm, pcomm, event.Ret,
+		rawFilename, absolutePath,
+		argv, envp,
 	)
 }
 
 func (a *Analyzer) HandleConnect(event events.ConnectEvent) {
-	comm := string(bytes.TrimRight(event.Common.Comm[:], "\x00"))
-	pcomm := string(bytes.TrimRight(event.Common.Pcomm[:], "\x00"))
+	// 1. Парсинг
+	comm := events.BytesToString(event.Common.Comm[:])
+	pcomm := events.BytesToString(event.Common.Pcomm[:])
+	ipStr := events.IntToIP(event.Ip)
+	port := events.Ntohs(event.Port)
 
-	// Конвертация IP (u32 -> string)
-	ip := make(net.IP, 4)
-	binary.LittleEndian.PutUint32(ip, event.Ip)
-	ipStr := ip.String()
-
-	// Конвертация Порта (Big Endian -> Little Endian)
-	port := (event.Port<<8)&0xff00 | (event.Port>>8)&0x00ff
-
+	// 3. Логирование
 	log.Printf(
 		"[CONNECT] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d FD:%d IP:%s PORT:%d",
-		event.Common.CgroupId,
-		event.Common.Pid,
-		event.Common.Ppid,
-		event.Common.Uid,
-		event.Common.Gid,
-		comm,
-		pcomm,
-		event.Ret,
-		event.Fd,
-		ipStr,
-		port,
+		event.Common.CgroupId, event.Common.Pid, event.Common.Ppid,
+		event.Common.Uid, event.Common.Gid,
+		comm, pcomm,
+		event.Ret, event.Fd,
+		ipStr, port,
 	)
 }
 
 func (a *Analyzer) HandleAccept(event events.AcceptEvent) {
-	comm := string(bytes.TrimRight(event.Common.Comm[:], "\x00"))
+	// 1. Парсинг
+	comm := events.BytesToString(event.Common.Comm[:])
+	ipStr := events.IntToIP(event.Ip)
+	port := events.Ntohs(event.Port)
 
-	// Конвертация IP/Port (аналогично Connect)
-	ip := make(net.IP, 4)
-	binary.LittleEndian.PutUint32(ip, event.Ip)
-
-	port := (event.Port<<8)&0xff00 | (event.Port>>8)&0x00ff
-
+	// 3. Логирование
 	log.Printf(
 		"[ACCEPT] INBOUND CONNECTION -> PID:%d COMM:%s REMOTE_IP:%s REMOTE_PORT:%d SOCKET_FD:%d",
-		event.Common.Pid, comm, ip.String(), port, event.Ret,
+		event.Common.Pid, comm, ipStr, port, event.Ret,
 	)
 }
 
-func extractArgs(raw [24][64]byte) []string {
-	var res []string
-	for _, chunk := range raw {
-		n := bytes.IndexByte(chunk[:], 0)
-		if n == -1 {
-			n = len(chunk)
-		}
-		if n == 0 {
-			continue
-		}
-		res = append(res, string(chunk[:n]))
-	}
-	return res
-}
-
 // resolvePath - Универсальная логика получения абсолютного пути
-// pid - ID процесса
-// fd - файловый дескриптор (если есть, иначе -1)
-// filename - исходное имя файла (может быть относительным)
 func (a *Analyzer) resolvePath(pid uint32, fd int32, filename string) string {
-	// 1. Если есть успешный дескриптор (для openat) - пробуем взять путь из /proc/PID/fd/FD
+	// 1. Если есть успешный дескриптор - пробуем взять путь из /proc/PID/fd/FD
 	if fd >= 0 {
 		linkPath := fmt.Sprintf("/proc/%d/fd/%d", pid, fd)
 		if realPath, err := os.Readlink(linkPath); err == nil {
@@ -191,7 +102,7 @@ func (a *Analyzer) resolvePath(pid uint32, fd int32, filename string) string {
 		}
 	}
 
-	// 2. Если путь уже абсолютный, возвращаем как есть
+	// 2. Если путь уже абсолютный
 	if strings.HasPrefix(filename, "/") {
 		return filename
 	}
@@ -202,6 +113,6 @@ func (a *Analyzer) resolvePath(pid uint32, fd int32, filename string) string {
 		return filepath.Join(cwd, filename)
 	}
 
-	// 4. Если не удалось определить контекст
+	// 4. Fallback
 	return fmt.Sprintf("UNKNOWN/%s", filename)
 }

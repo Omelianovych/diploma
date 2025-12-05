@@ -3,9 +3,7 @@ package events
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"net"
-	"strings"
 )
 
 // CommonEvent - общая часть для всех событий (должна совпадать с C struct common_event)
@@ -55,8 +53,7 @@ type AcceptEvent struct {
 
 // --- Методы String() ---
 
-func cleanString(data []byte) string {
-	// Триммим нули справа
+func BytesToString(data []byte) string {
 	n := bytes.IndexByte(data, 0)
 	if n == -1 {
 		return string(data)
@@ -64,69 +61,27 @@ func cleanString(data []byte) string {
 	return string(data[:n])
 }
 
-func int2ip(nn uint32) string {
+// IntToIP - Конвертация uint32 в строку IP
+func IntToIP(nn uint32) string {
 	ip := make(net.IP, 4)
 	binary.LittleEndian.PutUint32(ip, nn)
 	return ip.String()
 }
 
-// Helper для конвертации порта (Big Endian -> Little Endian/Host)
-func ntohs(port uint16) uint16 {
+// Ntohs - Конвертация порта (Network to Host Short)
+func Ntohs(port uint16) uint16 {
 	return (port<<8)&0xff00 | (port>>8)&0x00ff
 }
 
-func (e OpenatEvent) String() string {
-	comm := cleanString(e.Common.Comm[:])
-	filename := cleanString(e.Filename[:])
-
-	status := "SUCCESS"
-	if e.Ret < 0 {
-		status = fmt.Sprintf("ERR:%d", e.Ret)
-	} else {
-		status = fmt.Sprintf("FD:%d", e.Ret)
-	}
-
-	return fmt.Sprintf("[OPENAT] PID:%d COMM:%s FILE:%s RET:%s",
-		e.Common.Pid, comm, filename, status)
-}
-
-func (e ExecveEvent) String() string {
-	comm := cleanString(e.Common.Comm[:])
-	filename := cleanString(e.Filename[:])
-
-	// Собираем аргументы из массива Argv
-	var argsList []string
-	for _, argRaw := range e.Argv {
-		argStr := cleanString(argRaw[:])
-		if argStr != "" {
-			argsList = append(argsList, argStr)
+// ExtractArgs - Извлекает строки из фиксированного массива массивов байт
+func ExtractArgs(raw [24][64]byte) []string {
+	var res []string
+	for _, chunk := range raw {
+		// Используем наш правильный метод очистки строки
+		str := BytesToString(chunk[:])
+		if str != "" {
+			res = append(res, str)
 		}
 	}
-	args := strings.Join(argsList, " ")
-
-	return fmt.Sprintf("[EXECVE] PID:%d COMM:%s EXEC:%s ARGS:%s",
-		e.Common.Pid, comm, filename, args)
-}
-
-func (e ConnectEvent) String() string {
-	comm := cleanString(e.Common.Comm[:])
-	ipStr := int2ip(e.Ip)
-	port := ntohs(e.Port) // Переворачиваем порт для человеческого вида
-
-	status := "SUCCESS"
-	if e.Ret < 0 {
-		status = fmt.Sprintf("ERR:%d", e.Ret) // Например -115 (EINPROGRESS) - это нормально для неблокирующих сокетов
-	}
-
-	return fmt.Sprintf("[CONNECT] PID:%d COMM:%s ADDR:%s:%d RET:%s",
-		e.Common.Pid, comm, ipStr, port, status)
-}
-
-func (e AcceptEvent) String() string {
-	comm := cleanString(e.Common.Comm[:])
-	ipStr := int2ip(e.Ip)
-	port := ntohs(e.Port)
-
-	return fmt.Sprintf("[ACCEPT] PID:%d COMM:%s REMOTE:%s:%d FD:%d",
-		e.Common.Pid, comm, ipStr, port, e.Ret)
+	return res
 }
