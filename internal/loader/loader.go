@@ -14,6 +14,7 @@ type LoaderResult struct {
 	ExecveReader  *ringbuf.Reader
 	ConnectReader *ringbuf.Reader
 	AcceptReader  *ringbuf.Reader
+	PtraceReader  *ringbuf.Reader
 }
 
 func Setup() (*LoaderResult, func(), error) {
@@ -94,46 +95,48 @@ func Setup() (*LoaderResult, func(), error) {
 	}
 	links = append(links, l8)
 
+	// --- 5. PTRACE (NEW) ---
+	l9, err := link.Tracepoint("syscalls", "sys_enter_ptrace", objs.TraceEnterPtrace, nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("link ptrace enter: %v", err)
+	}
+	links = append(links, l9)
+
+	l10, err := link.Tracepoint("syscalls", "sys_exit_ptrace", objs.TraceExitPtrace, nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("link ptrace exit: %v", err)
+	}
+	links = append(links, l10)
 	// --- READERS ---
 	// Читаем из карты OpenatEvents
 	rdOpenat, err := ringbuf.NewReader(objs.OpenatEvents)
 	if err != nil {
 		return nil, nil, err
 	}
-	// Читаем из карты ExecveEvents
 	rdExecve, err := ringbuf.NewReader(objs.ExecveEvents)
 	if err != nil {
 		return nil, nil, err
 	}
-
 	rdConnect, err := ringbuf.NewReader(objs.ConnectEvents)
 	if err != nil {
-		rdOpenat.Close()
-		rdExecve.Close()
-		for _, l := range links {
-			l.Close()
-		}
-		objs.Close()
-		return nil, nil, fmt.Errorf("reader connect: %v", err)
+		return nil, nil, err
 	}
-
-	// Создаем ридер для ACCEPT
 	rdAccept, err := ringbuf.NewReader(objs.AcceptEvents)
 	if err != nil {
-		rdOpenat.Close()
-		rdExecve.Close()
-		rdConnect.Close()
-		for _, l := range links {
-			l.Close()
-		}
-		objs.Close()
-		return nil, nil, fmt.Errorf("reader accept: %v", err)
+		return nil, nil, err
+	}
+	// Ptrace Reader
+	rdPtrace, err := ringbuf.NewReader(objs.PtraceEvents)
+	if err != nil {
+		return nil, nil, fmt.Errorf("reader ptrace: %v", err)
 	}
 
 	cleanup := func() {
 		rdOpenat.Close()
 		rdExecve.Close()
 		rdConnect.Close()
+		rdAccept.Close()
+		rdPtrace.Close() // NEW
 		for _, l := range links {
 			l.Close()
 		}
@@ -145,5 +148,6 @@ func Setup() (*LoaderResult, func(), error) {
 		ExecveReader:  rdExecve,
 		ConnectReader: rdConnect,
 		AcceptReader:  rdAccept,
+		PtraceReader:  rdPtrace, // NEW
 	}, cleanup, nil
 }

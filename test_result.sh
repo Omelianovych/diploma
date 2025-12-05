@@ -18,7 +18,8 @@ echo "---------------------------------------------------"
 # 4. python3.*PORT:8000 (наш accept, порт может быть 8000 или обратный)
 
 # Используем grep -a (treat binary as text) на случай, если в логах есть мусор
-grep -a -E "diploma_test_openat|COMM:curl|COMM:ls|python3.*:8000|COMM:python3.*FD:" "$LOGFILE"
+
+grep -a -E "diploma_test_openat|COMM:curl|COMM:ls|python3.*:8000|COMM:python3.*FD:|PTRACE" "$LOGFILE"
 
 echo "---------------------------------------------------"
 echo "✅ Фильтрация завершена."

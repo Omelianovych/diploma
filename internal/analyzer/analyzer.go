@@ -9,6 +9,22 @@ import (
 	"strings"
 )
 
+var ptraceRequests = map[int64]string{
+	0:  "PTRACE_TRACEME",
+	1:  "PTRACE_PEEKTEXT",
+	2:  "PTRACE_PEEKDATA",
+	3:  "PTRACE_PEEKUSER",
+	4:  "PTRACE_POKETEXT",
+	5:  "PTRACE_POKEDATA",
+	6:  "PTRACE_POKEUSER",
+	7:  "PTRACE_CONT",
+	8:  "PTRACE_KILL",
+	9:  "PTRACE_SINGLESTEP",
+	16: "PTRACE_ATTACH",
+	17: "PTRACE_DETACH",
+	24: "PTRACE_SYSCALL",
+}
+
 type Analyzer struct{}
 
 func New() *Analyzer {
@@ -89,6 +105,35 @@ func (a *Analyzer) HandleAccept(event events.AcceptEvent) {
 	log.Printf(
 		"[ACCEPT] INBOUND CONNECTION -> PID:%d COMM:%s REMOTE_IP:%s REMOTE_PORT:%d SOCKET_FD:%d",
 		event.Common.Pid, comm, ipStr, port, event.Ret,
+	)
+}
+
+func (a *Analyzer) HandlePtrace(event events.PtraceEvent) {
+	comm := events.BytesToString(event.Common.Comm[:])
+	pcomm := events.BytesToString(event.Common.Pcomm[:])
+
+	// Расшифровка кода запроса
+	reqName, ok := ptraceRequests[event.Request]
+	if !ok {
+		reqName = fmt.Sprintf("UNKNOWN(%d)", event.Request)
+	}
+
+	// Формируем сообщение
+	// Важно: PID - это тот КТО вызывает ptrace (атакующий или отладчик)
+	// TargetPid - это ТОТ, КОГО атакуют
+	log.Printf(
+		"[PTRACE] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d REQUEST:%s(code=%d) TARGET_PID:%d ADDR:0x%x",
+		event.Common.CgroupId,  // ID контрольной группы
+		event.Common.Pid,       // PID того, кто атакует (tracer)
+		event.Common.Ppid,      // PPID атакующего
+		event.Common.Uid,       // UID атакующего
+		event.Common.Gid,       // GID атакующего
+		comm,                   // Имя процесса атакующего
+		pcomm,                  // Имя родительского процесса атакующего
+		event.Ret,              // Результат вызова (0 - успешно, <0 - ошибка)
+		reqName, event.Request, // Расшифрованное и сырое имя запроса
+		event.TargetPid, // PID жертвы (tracee)
+		event.Addr,      // Адрес памяти (если применимо)
 	)
 }
 

@@ -40,6 +40,14 @@ type TraceOpenatArgsT struct {
 	Filename [128]int8
 }
 
+type TracePtraceArgsT struct {
+	_         structs.HostLayout
+	Request   int64
+	TargetPid int32
+	_         [4]byte
+	Addr      uint64
+}
+
 // LoadTrace returns the embedded CollectionSpec for Trace.
 func LoadTrace() (*ebpf.CollectionSpec, error) {
 	reader := bytes.NewReader(_TraceBytes)
@@ -86,10 +94,12 @@ type TraceProgramSpecs struct {
 	TraceEnterConnect *ebpf.ProgramSpec `ebpf:"trace_enter_connect"`
 	TraceEnterExecve  *ebpf.ProgramSpec `ebpf:"trace_enter_execve"`
 	TraceEnterOpenat  *ebpf.ProgramSpec `ebpf:"trace_enter_openat"`
+	TraceEnterPtrace  *ebpf.ProgramSpec `ebpf:"trace_enter_ptrace"`
 	TraceExitAccept4  *ebpf.ProgramSpec `ebpf:"trace_exit_accept4"`
 	TraceExitConnect  *ebpf.ProgramSpec `ebpf:"trace_exit_connect"`
 	TraceExitExecve   *ebpf.ProgramSpec `ebpf:"trace_exit_execve"`
 	TraceExitOpenat   *ebpf.ProgramSpec `ebpf:"trace_exit_openat"`
+	TraceExitPtrace   *ebpf.ProgramSpec `ebpf:"trace_exit_ptrace"`
 }
 
 // TraceMapSpecs contains maps before they are loaded into the kernel.
@@ -105,6 +115,8 @@ type TraceMapSpecs struct {
 	ExecveTmpStorage  *ebpf.MapSpec `ebpf:"execve_tmp_storage"`
 	OpenatEvents      *ebpf.MapSpec `ebpf:"openat_events"`
 	OpenatTmpStorage  *ebpf.MapSpec `ebpf:"openat_tmp_storage"`
+	PtraceEvents      *ebpf.MapSpec `ebpf:"ptrace_events"`
+	PtraceTmpStorage  *ebpf.MapSpec `ebpf:"ptrace_tmp_storage"`
 }
 
 // TraceVariableSpecs contains global variables before they are loaded into the kernel.
@@ -142,6 +154,8 @@ type TraceMaps struct {
 	ExecveTmpStorage  *ebpf.Map `ebpf:"execve_tmp_storage"`
 	OpenatEvents      *ebpf.Map `ebpf:"openat_events"`
 	OpenatTmpStorage  *ebpf.Map `ebpf:"openat_tmp_storage"`
+	PtraceEvents      *ebpf.Map `ebpf:"ptrace_events"`
+	PtraceTmpStorage  *ebpf.Map `ebpf:"ptrace_tmp_storage"`
 }
 
 func (m *TraceMaps) Close() error {
@@ -155,6 +169,8 @@ func (m *TraceMaps) Close() error {
 		m.ExecveTmpStorage,
 		m.OpenatEvents,
 		m.OpenatTmpStorage,
+		m.PtraceEvents,
+		m.PtraceTmpStorage,
 	)
 }
 
@@ -172,10 +188,12 @@ type TracePrograms struct {
 	TraceEnterConnect *ebpf.Program `ebpf:"trace_enter_connect"`
 	TraceEnterExecve  *ebpf.Program `ebpf:"trace_enter_execve"`
 	TraceEnterOpenat  *ebpf.Program `ebpf:"trace_enter_openat"`
+	TraceEnterPtrace  *ebpf.Program `ebpf:"trace_enter_ptrace"`
 	TraceExitAccept4  *ebpf.Program `ebpf:"trace_exit_accept4"`
 	TraceExitConnect  *ebpf.Program `ebpf:"trace_exit_connect"`
 	TraceExitExecve   *ebpf.Program `ebpf:"trace_exit_execve"`
 	TraceExitOpenat   *ebpf.Program `ebpf:"trace_exit_openat"`
+	TraceExitPtrace   *ebpf.Program `ebpf:"trace_exit_ptrace"`
 }
 
 func (p *TracePrograms) Close() error {
@@ -184,10 +202,12 @@ func (p *TracePrograms) Close() error {
 		p.TraceEnterConnect,
 		p.TraceEnterExecve,
 		p.TraceEnterOpenat,
+		p.TraceEnterPtrace,
 		p.TraceExitAccept4,
 		p.TraceExitConnect,
 		p.TraceExitExecve,
 		p.TraceExitOpenat,
+		p.TraceExitPtrace,
 	)
 }
 

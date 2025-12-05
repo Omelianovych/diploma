@@ -51,6 +51,14 @@ type AcceptEvent struct {
 	Port   uint16
 }
 
+type PtraceEvent struct {
+	Common    CommonEvent
+	Ret       int32
+	Request   int64 // long в C это обычно 64 бит на 64-бит системах
+	TargetPid int32
+	Addr      uint64
+}
+
 // --- Методы String() ---
 
 func BytesToString(data []byte) string {
