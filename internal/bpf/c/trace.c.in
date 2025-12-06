@@ -79,13 +79,15 @@ struct accept_args_t {
 struct ptrace_event {
   struct common_event common;
   int ret;
-  long request;   // PTRACE_ATTACH, PTRACE_PEEKTEXT и т.д.
+  int _pad;
+  u64 request;    // PTRACE_ATTACH, PTRACE_PEEKTEXT и т.д.
   int target_pid; // PID процесса, над которым совершается действие
+  int _pad2;
   u64 addr;
 };
 
 struct ptrace_args_t {
-  long request;
+  u64 request;
   int target_pid;
   u64 addr;
 };
@@ -450,9 +452,12 @@ int trace_enter_ptrace(struct trace_event_raw_sys_enter *ctx) {
   struct ptrace_args_t args = {};
   // long ptrace(enum __ptrace_request request, pid_t pid, void *addr, void
   // *data);
-  args.request = (long)ctx->args[0];
+  args.request = (u64)ctx->args[0];
   args.target_pid = (int)ctx->args[1];
   args.addr = (u64)ctx->args[2];
+
+  bpf_printk("ptrace enter: req=%ld pid=%d addr=0x%llx\n", args.request,
+             args.target_pid, args.addr);
 
   bpf_map_update_elem(&ptrace_tmp_storage, &tid, &args, BPF_ANY);
   return 0;
@@ -479,6 +484,8 @@ int trace_exit_ptrace(struct trace_event_raw_sys_exit *ctx) {
   e->request = saved_args->request;
   e->target_pid = saved_args->target_pid;
   e->addr = saved_args->addr;
+  e->_pad = 0;
+  e->_pad2 = 0;
 
   bpf_ringbuf_submit(e, 0);
   bpf_map_delete_elem(&ptrace_tmp_storage, &tid);

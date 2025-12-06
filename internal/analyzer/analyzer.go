@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var ptraceRequests = map[int64]string{
+var ptraceRequests = map[uint64]string{
 	0:  "PTRACE_TRACEME",
 	1:  "PTRACE_PEEKTEXT",
 	2:  "PTRACE_PEEKDATA",
@@ -23,6 +23,17 @@ var ptraceRequests = map[int64]string{
 	16: "PTRACE_ATTACH",
 	17: "PTRACE_DETACH",
 	24: "PTRACE_SYSCALL",
+
+	// --- Расширенные опции (Linux extended ptrace) ---
+	0x4200: "PTRACE_SETOPTIONS",  // 16896
+	0x4201: "PTRACE_GETEVENTMSG", // 16897
+	0x4202: "PTRACE_GETSIGINFO",  // 16898
+	0x4203: "PTRACE_SETSIGINFO",
+	0x4206: "PTRACE_SEIZE",     // 16902
+	0x4207: "PTRACE_INTERRUPT", // 16903
+	0x4208: "PTRACE_LISTEN",    // 16904
+	0x420E: "PTRACE_GETREGSET", // 16910 (Чтение регистров)
+	0x420F: "PTRACE_SETREGSET", // (Запись регистров)
 }
 
 type Analyzer struct{}

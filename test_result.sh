@@ -19,7 +19,7 @@ echo "---------------------------------------------------"
 
 # Используем grep -a (treat binary as text) на случай, если в логах есть мусор
 
-grep -a -E "diploma_test_openat|COMM:curl|COMM:ls|python3.*:8000|COMM:python3.*FD:|PTRACE" "$LOGFILE"
+grep -a -E "diploma_test_openat|COMM:curl|COMM:ls|python3.*:8000|COMM:python3.*FD:" "$LOGFILE"
 
 echo "---------------------------------------------------"
 echo "✅ Фильтрация завершена."

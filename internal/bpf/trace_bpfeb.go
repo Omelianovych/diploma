@@ -42,7 +42,7 @@ type TraceOpenatArgsT struct {
 
 type TracePtraceArgsT struct {
 	_         structs.HostLayout
-	Request   int64
+	Request   uint64
 	TargetPid int32
 	_         [4]byte
 	Addr      uint64

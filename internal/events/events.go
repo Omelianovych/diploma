@@ -54,8 +54,10 @@ type AcceptEvent struct {
 type PtraceEvent struct {
 	Common    CommonEvent
 	Ret       int32
-	Request   int64 // long в C это обычно 64 бит на 64-бит системах
+	Pad       int32
+	Request   uint64 // long в C это обычно 64 бит на 64-бит системах
 	TargetPid int32
+	Pad2      int32
 	Addr      uint64
 }
 
