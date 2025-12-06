@@ -54,12 +54,19 @@ func (a *Analyzer) HandleOpenat(event events.OpenatEvent) {
 
 	// 3. Логирование (или подготовка данных для дальнейшей работы)
 	log.Printf(
-		"[OPENAT] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s FLAGS:%d DFD:%d RET:%d RAW:%q PATH:%q",
-		event.Common.CgroupId, event.Common.Pid, event.Common.Ppid,
-		event.Common.Uid, event.Common.Gid,
-		comm, pcomm,
-		event.Flags, event.Dfd, event.Ret,
-		rawFilename, absolutePath,
+		"[OPENAT] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s FLAGS:%d DFD:%d RET:%d RAW_FILENAME:%q RESOLVED_PATH:%q",
+		event.Common.CgroupId,
+		event.Common.Pid,
+		event.Common.Ppid,
+		event.Common.Uid,
+		event.Common.Gid,
+		comm,
+		pcomm,
+		event.Flags,
+		event.Dfd,
+		event.Ret,
+		rawFilename,
+		absolutePath,
 	)
 }
 
@@ -79,12 +86,19 @@ func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
 
 	// 3. Логирование
 	log.Printf(
-		"[EXECVE] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d RAW:%q PATH:%q ARGS:%s ENV:%s",
-		event.Common.CgroupId, event.Common.Pid, event.Common.Ppid,
-		event.Common.Uid, event.Common.Gid,
-		comm, pcomm, event.Ret,
-		rawFilename, absolutePath,
-		argv, envp,
+		"[EXECVE] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d RAW_FILENAME:%q RESOLVED_PATH:%q ARGV:%s ENVP:%s",
+		event.Common.CgroupId,
+		event.Common.Pid,
+		event.Common.Ppid,
+		event.Common.Uid,
+		event.Common.Gid,
+		comm,
+		pcomm,
+		event.Ret,
+		rawFilename,
+		absolutePath,
+		argv,
+		envp,
 	)
 }
 
@@ -98,24 +112,40 @@ func (a *Analyzer) HandleConnect(event events.ConnectEvent) {
 	// 3. Логирование
 	log.Printf(
 		"[CONNECT] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d FD:%d IP:%s PORT:%d",
-		event.Common.CgroupId, event.Common.Pid, event.Common.Ppid,
-		event.Common.Uid, event.Common.Gid,
-		comm, pcomm,
-		event.Ret, event.Fd,
-		ipStr, port,
+		event.Common.CgroupId,
+		event.Common.Pid,
+		event.Common.Ppid,
+		event.Common.Uid,
+		event.Common.Gid,
+		comm,
+		pcomm,
+		event.Ret,
+		event.Fd,
+		ipStr,
+		port,
 	)
 }
 
 func (a *Analyzer) HandleAccept(event events.AcceptEvent) {
 	// 1. Парсинг
 	comm := events.BytesToString(event.Common.Comm[:])
+	pcomm := events.BytesToString(event.Common.Pcomm[:])
 	ipStr := events.IntToIP(event.Ip)
 	port := events.Ntohs(event.Port)
 
 	// 3. Логирование
 	log.Printf(
-		"[ACCEPT] INBOUND CONNECTION -> PID:%d COMM:%s REMOTE_IP:%s REMOTE_PORT:%d SOCKET_FD:%d",
-		event.Common.Pid, comm, ipStr, port, event.Ret,
+		"[ACCEPT] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET(NewSocketFD):%d REMOTE_IP:%s REMOTE_PORT:%d",
+		event.Common.CgroupId, // Было пропущено
+		event.Common.Pid,
+		event.Common.Ppid, // Было пропущено
+		event.Common.Uid,  // Было пропущено
+		event.Common.Gid,  // Было пропущено
+		comm,
+		pcomm,     // Было пропущено
+		event.Ret, // Это FD нового сокета
+		ipStr,
+		port,
 	)
 }
 
