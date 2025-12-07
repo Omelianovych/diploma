@@ -2,6 +2,7 @@ package main
 
 import (
 	"diploma/internal/analyzer"
+	"diploma/internal/config"
 	"diploma/internal/loader"
 	"diploma/internal/poller"
 	"log"
@@ -21,29 +22,50 @@ func main() {
 
 	// 2. Подготовка правил (Заглушка или загрузка из YAML)
 	// В будущем здесь будет: cfg, err := config.Load("rules.yaml")
-	rulesCfg := analyzer.RulesConfig{
-		Rules: []analyzer.Rule{
-			{
-				Name:       "Detect /etc/shadow access",
-				Severity:   "CRITICAL",
-				EventTypes: []string{"openat"},
-				Message:    "Attempt to open shadow file detected",
-				Conditions: []analyzer.Condition{
-					{Field: "fd.name", Operator: "=", Value: "/etc/shadow"},
-				},
-			},
-			{
-				Name:       "Detect Netcat execution",
-				Severity:   "WARNING",
-				EventTypes: []string{"execve"},
-				Message:    "Netcat binary executed",
-				Conditions: []analyzer.Condition{
-					{Field: "proc.name", Operator: "=", Value: "nc"},
-				},
-			},
-		},
+	// rulesCfg := analyzer.RulesConfig{
+	// 	Rules: []analyzer.Rule{
+	// 		{
+	// 			Name:       "Detect /etc/shadow access",
+	// 			Severity:   "CRITICAL",
+	// 			EventTypes: []string{"openat"},
+	// 			Message:    "Attempt to open shadow file detected",
+	// 			Conditions: []analyzer.Condition{
+	// 				{Field: "fd.name", Operator: "=", Value: "/etc/shadow"},
+	// 			},
+	// 		},
+	// 		{
+	// 			Name:       "Suspicious Downloader (curl)",
+	// 			Severity:   "INFO",
+	// 			EventTypes: []string{"execve"},
+	// 			Message:    "Curl utility executed",
+	// 			Conditions: []analyzer.Condition{
+	// 				{Field: "proc.name", Operator: "=", Value: "curl"},
+	// 			},
+	// 		},
+	// 		{
+	// 			Name:       "Detect ls -l command",
+	// 			Severity:   "INFO", // Обычно это не угроза, поэтому INFO
+	// 			EventTypes: []string{"execve"},
+	// 			Message:    "Executed ls with list flag (-l)",
+	// 			Conditions: []analyzer.Condition{
+	// 				// 1. Убеждаемся, что это команда ls
+	// 				{Field: "proc.name", Operator: "=", Value: "ls"},
+	// 				// 2. Проверяем, что в аргументах есть флаг -l
+	// 				// proc.cmdline содержит всю строку запуска, например "ls -l /tmp"
+	// 				{Field: "proc.cmdline", Operator: "contains", Value: "-l"},
+	// 			},
+	// 		},
+	// 	},
+	// }
+	rulesPath := "configs/security_rules.yaml"
+	rulesCfg, err := config.LoadRules(rulesPath)
+	if err != nil {
+		log.Fatalf("Критическая ошибка: не удалось загрузить правила из %s: %v", rulesPath, err)
 	}
-	engine := analyzer.New(rulesCfg)
+
+	log.Printf("Загружено %d правил безопасности", len(rulesCfg.Rules))
+
+	engine := analyzer.New(*rulesCfg)
 
 	// 2. POLLER: Запускаем два независимых потока чтения
 	// poller.Start теперь запускается дважды для разных типов

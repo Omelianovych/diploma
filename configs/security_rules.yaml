@@ -1,0 +1,43 @@
+rules:
+  - name: "Detect /etc/shadow access"
+    severity: "CRITICAL"
+    event_types:
+      - "openat"
+    message: "Attempt to open shadow file detected"
+    conditions:
+      - field: "fd.name"
+        operator: "="
+        value: "/etc/shadow"
+
+  - name: "Detect Netcat execution"
+    severity: "WARNING"
+    event_types:
+      - "execve"
+    message: "Netcat binary executed"
+    conditions:
+      - field: "proc.name"
+        operator: "="
+        value: "nc"
+
+  - name: "Suspicious Downloader (curl)"
+    severity: "INFO"
+    event_types:
+      - "execve"
+    message: "Curl utility executed"
+    conditions:
+      - field: "proc.name"
+        operator: "="
+        value: "curl"
+
+  - name: "Detect ls -l command"
+    severity: "INFO"
+    event_types:
+      - "execve"
+    message: "Executed ls with list flag (-l)"
+    conditions:
+      - field: "proc.name"
+        operator: "="
+        value: "ls"
+      - field: "proc.cmdline"
+        operator: "contains"
+        value: "-l"
