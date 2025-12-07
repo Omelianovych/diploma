@@ -19,7 +19,31 @@ func main() {
 	}
 	defer cleanup()
 
-	engine := analyzer.New()
+	// 2. Подготовка правил (Заглушка или загрузка из YAML)
+	// В будущем здесь будет: cfg, err := config.Load("rules.yaml")
+	rulesCfg := analyzer.RulesConfig{
+		Rules: []analyzer.Rule{
+			{
+				Name:       "Detect /etc/shadow access",
+				Severity:   "CRITICAL",
+				EventTypes: []string{"openat"},
+				Message:    "Attempt to open shadow file detected",
+				Conditions: []analyzer.Condition{
+					{Field: "fd.name", Operator: "=", Value: "/etc/shadow"},
+				},
+			},
+			{
+				Name:       "Detect Netcat execution",
+				Severity:   "WARNING",
+				EventTypes: []string{"execve"},
+				Message:    "Netcat binary executed",
+				Conditions: []analyzer.Condition{
+					{Field: "proc.name", Operator: "=", Value: "nc"},
+				},
+			},
+		},
+	}
+	engine := analyzer.New(rulesCfg)
 
 	// 2. POLLER: Запускаем два независимых потока чтения
 	// poller.Start теперь запускается дважды для разных типов

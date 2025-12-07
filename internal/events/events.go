@@ -6,6 +6,11 @@ import (
 	"net"
 )
 
+type EventGetter interface {
+	GetType() string
+	GetField(name string) (interface{}, bool)
+}
+
 // CommonEvent - общая часть для всех событий (должна совпадать с C struct common_event)
 type CommonEvent struct {
 	CgroupId uint64

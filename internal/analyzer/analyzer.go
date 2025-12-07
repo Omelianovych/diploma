@@ -36,146 +36,103 @@ var ptraceRequests = map[uint64]string{
 	0x420F: "PTRACE_SETREGSET", // (Запись регистров)
 }
 
-type Analyzer struct{}
+type Analyzer struct {
+	Rules []Rule
+}
 
-func New() *Analyzer {
-	return &Analyzer{}
+// EnrichedEvent - обертка над событием, добавляющая вычисленные данные (absolutePath)
+type EnrichedEvent struct {
+	events.EventGetter // Встраиваем интерфейс (оригинальное событие)
+	ResolvedPath       string
+}
+
+// GetField перехватывает запросы к полям пути.
+// Если просят путь файла - возвращаем ResolvedPath.
+// Все остальное перенаправляем в оригинальное событие.
+func (e *EnrichedEvent) GetField(name string) (interface{}, bool) {
+	switch name {
+	// Для Openat
+	case "fd.name", "evt.arg.filename":
+		return e.ResolvedPath, true
+	// Для Execve
+	case "proc.exepath":
+		return e.ResolvedPath, true
+	}
+	// Делегируем оригинальному событию
+	return e.EventGetter.GetField(name)
+}
+
+// GetType просто вызывает метод оригинального события
+func (e *EnrichedEvent) GetType() string {
+	return e.EventGetter.GetType()
+}
+
+func New(rulesCfg RulesConfig) *Analyzer {
+	return &Analyzer{
+		Rules: rulesCfg.Rules,
+	}
+}
+
+func (a *Analyzer) checkRules(evt events.EventGetter) {
+	for _, rule := range a.Rules {
+		if rule.CheckEvent(evt) {
+			log.Printf("[ALERT] RULE MATCH: %s | Severity: %s | Payload: %s",
+				rule.Name, rule.Severity, rule.Message)
+		}
+	}
 }
 
 // HandleOpenat - Обработка события открытия файла
 func (a *Analyzer) HandleOpenat(event events.OpenatEvent) {
-	// 1. Парсинг (используем безопасный BytesToString из events)
+	// 1. Парсинг
 	rawFilename := events.BytesToString(event.Filename[:])
-	comm := events.BytesToString(event.Common.Comm[:])
-	pcomm := events.BytesToString(event.Common.Pcomm[:])
 
 	// 2. Обогащение (бизнес-логика)
 	absolutePath := a.resolvePath(event.Common.Pid, event.Ret, rawFilename)
 
-	// 3. Логирование (или подготовка данных для дальнейшей работы)
-	log.Printf(
-		"[OPENAT] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s FLAGS:%d DFD:%d RET:%d RAW_FILENAME:%q RESOLVED_PATH:%q",
-		event.Common.CgroupId,
-		event.Common.Pid,
-		event.Common.Ppid,
-		event.Common.Uid,
-		event.Common.Gid,
-		comm,
-		pcomm,
-		event.Flags,
-		event.Dfd,
-		event.Ret,
-		rawFilename,
-		absolutePath,
-	)
+	// 3. Создаем Обогащенное событие
+	enrichedEvt := &EnrichedEvent{
+		EventGetter:  &event, // передаем указатель на struct, так как методы реализованы на *OpenatEvent
+		ResolvedPath: absolutePath,
+	}
+
+	// 4. Проверка правил (передаем уже enrichedEvt)
+	a.checkRules(enrichedEvt)
+
+	// 5. Логирование (опционально, для отладки)
+	// log.Printf("[OPENAT] File: %s", absolutePath)
 }
 
 // HandleExecve - Обработка события запуска процесса
 func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
 	// 1. Парсинг
 	rawFilename := events.BytesToString(event.Filename[:])
-	comm := events.BytesToString(event.Common.Comm[:])
-	pcomm := events.BytesToString(event.Common.Pcomm[:])
-
-	// Используем перенесенный в events хелпер
-	argv := strings.Join(events.ExtractArgs(event.Argv), " ")
-	envp := strings.Join(events.ExtractArgs(event.Envp), " ")
 
 	// 2. Обогащение
 	absolutePath := a.resolvePath(event.Common.Pid, -1, rawFilename)
 
-	// 3. Логирование
-	log.Printf(
-		"[EXECVE] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d RAW_FILENAME:%q RESOLVED_PATH:%q ARGV:%s ENVP:%s",
-		event.Common.CgroupId,
-		event.Common.Pid,
-		event.Common.Ppid,
-		event.Common.Uid,
-		event.Common.Gid,
-		comm,
-		pcomm,
-		event.Ret,
-		rawFilename,
-		absolutePath,
-		argv,
-		envp,
-	)
+	// 3. Создаем Обогащенное событие
+	enrichedEvt := &EnrichedEvent{
+		EventGetter:  &event,
+		ResolvedPath: absolutePath,
+	}
+
+	// 4. Проверка правил
+	a.checkRules(enrichedEvt)
 }
 
 func (a *Analyzer) HandleConnect(event events.ConnectEvent) {
-	// 1. Парсинг
-	comm := events.BytesToString(event.Common.Comm[:])
-	pcomm := events.BytesToString(event.Common.Pcomm[:])
-	ipStr := events.IntToIP(event.Ip)
-	port := events.Ntohs(event.Port)
-
-	// 3. Логирование
-	log.Printf(
-		"[CONNECT] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d FD:%d IP:%s PORT:%d",
-		event.Common.CgroupId,
-		event.Common.Pid,
-		event.Common.Ppid,
-		event.Common.Uid,
-		event.Common.Gid,
-		comm,
-		pcomm,
-		event.Ret,
-		event.Fd,
-		ipStr,
-		port,
-	)
+	// Connect пока не требует обогащения пути, передаем как есть
+	// Но передаем указатель, чтобы сработал интерфейс
+	a.checkRules(&event)
 }
 
 func (a *Analyzer) HandleAccept(event events.AcceptEvent) {
-	// 1. Парсинг
-	comm := events.BytesToString(event.Common.Comm[:])
-	pcomm := events.BytesToString(event.Common.Pcomm[:])
-	ipStr := events.IntToIP(event.Ip)
-	port := events.Ntohs(event.Port)
-
-	// 3. Логирование
-	log.Printf(
-		"[ACCEPT] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET(NewSocketFD):%d REMOTE_IP:%s REMOTE_PORT:%d",
-		event.Common.CgroupId, // Было пропущено
-		event.Common.Pid,
-		event.Common.Ppid, // Было пропущено
-		event.Common.Uid,  // Было пропущено
-		event.Common.Gid,  // Было пропущено
-		comm,
-		pcomm,     // Было пропущено
-		event.Ret, // Это FD нового сокета
-		ipStr,
-		port,
-	)
+	a.checkRules(&event)
 }
 
 func (a *Analyzer) HandlePtrace(event events.PtraceEvent) {
-	comm := events.BytesToString(event.Common.Comm[:])
-	pcomm := events.BytesToString(event.Common.Pcomm[:])
-
-	// Расшифровка кода запроса
-	reqName, ok := ptraceRequests[event.Request]
-	if !ok {
-		reqName = fmt.Sprintf("UNKNOWN(%d)", event.Request)
-	}
-
-	// Формируем сообщение
-	// Важно: PID - это тот КТО вызывает ptrace (атакующий или отладчик)
-	// TargetPid - это ТОТ, КОГО атакуют
-	log.Printf(
-		"[PTRACE] CgroupID:%d PID:%d PPID:%d UID:%d GID:%d COMM:%s PCOMM:%s RET:%d REQUEST:%s(code=%d) TARGET_PID:%d ADDR:0x%x",
-		event.Common.CgroupId,  // ID контрольной группы
-		event.Common.Pid,       // PID того, кто атакует (tracer)
-		event.Common.Ppid,      // PPID атакующего
-		event.Common.Uid,       // UID атакующего
-		event.Common.Gid,       // GID атакующего
-		comm,                   // Имя процесса атакующего
-		pcomm,                  // Имя родительского процесса атакующего
-		event.Ret,              // Результат вызова (0 - успешно, <0 - ошибка)
-		reqName, event.Request, // Расшифрованное и сырое имя запроса
-		event.TargetPid, // PID жертвы (tracee)
-		event.Addr,      // Адрес памяти (если применимо)
-	)
+	a.checkRules(&event)
 }
 
 // resolvePath - Универсальная логика получения абсолютного пути
