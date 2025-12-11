@@ -51,7 +51,7 @@ type ConnectEvent struct {
 
 type AcceptEvent struct {
 	Common CommonEvent
-	Ret    int32 // Это будет File Descriptor нового сокета
+	Ret    int32
 	Ip     uint32
 	Port   uint16
 }
@@ -60,13 +60,20 @@ type PtraceEvent struct {
 	Common    CommonEvent
 	Ret       int32
 	Pad       int32
-	Request   uint64 // long в C это обычно 64 бит на 64-бит системах
+	Request   uint64
 	TargetPid int32
 	Pad2      int32
 	Addr      uint64
 }
 
-// --- Методы String() ---
+type MemfdEvent struct {
+	Common CommonEvent
+	Ret    int32 // FD
+	Flags  uint32
+	Name   [128]byte
+}
+
+// --- String() ---
 
 func BytesToString(data []byte) string {
 	n := bytes.IndexByte(data, 0)

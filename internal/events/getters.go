@@ -125,3 +125,19 @@ func (e *PtraceEvent) GetField(name string) (interface{}, bool) {
 	}
 	return getCommonField(&e.Common, name)
 }
+
+func (e *MemfdEvent) GetType() string {
+	return "memfd_create"
+}
+
+func (e *MemfdEvent) GetField(name string) (interface{}, bool) {
+	switch name {
+	case "evt.arg.name":
+		return BytesToString(e.Name[:]), true
+	case "evt.arg.flags":
+		return int(e.Flags), true
+	case "evt.res", "fd.num":
+		return int(e.Ret), true
+	}
+	return getCommonField(&e.Common, name)
+}

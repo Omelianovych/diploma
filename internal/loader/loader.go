@@ -15,6 +15,7 @@ type LoaderResult struct {
 	ConnectReader *ringbuf.Reader
 	AcceptReader  *ringbuf.Reader
 	PtraceReader  *ringbuf.Reader
+	MemfdReader   *ringbuf.Reader
 }
 
 func Setup() (*LoaderResult, func(), error) {
@@ -107,6 +108,19 @@ func Setup() (*LoaderResult, func(), error) {
 		return nil, nil, fmt.Errorf("link ptrace exit: %v", err)
 	}
 	links = append(links, l10)
+
+	l11, err := link.Tracepoint("syscalls", "sys_enter_memfd_create", objs.TraceEnterMemfdCreate, nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("link memfd enter: %v", err)
+	}
+	links = append(links, l11)
+
+	l12, err := link.Tracepoint("syscalls", "sys_exit_memfd_create", objs.TraceExitMemfdCreate, nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("link memfd exit: %v", err)
+	}
+	links = append(links, l12)
+
 	// --- READERS ---
 	// Читаем из карты OpenatEvents
 	rdOpenat, err := ringbuf.NewReader(objs.OpenatEvents)
@@ -131,12 +145,18 @@ func Setup() (*LoaderResult, func(), error) {
 		return nil, nil, fmt.Errorf("reader ptrace: %v", err)
 	}
 
+	rdMemfd, err := ringbuf.NewReader(objs.MemfdEvents)
+	if err != nil {
+		return nil, nil, fmt.Errorf("reader memfd: %v", err)
+	}
+
 	cleanup := func() {
 		rdOpenat.Close()
 		rdExecve.Close()
 		rdConnect.Close()
 		rdAccept.Close()
-		rdPtrace.Close() // NEW
+		rdPtrace.Close()
+		rdMemfd.Close()
 		for _, l := range links {
 			l.Close()
 		}
@@ -149,5 +169,6 @@ func Setup() (*LoaderResult, func(), error) {
 		ConnectReader: rdConnect,
 		AcceptReader:  rdAccept,
 		PtraceReader:  rdPtrace, // NEW
+		MemfdReader:   rdMemfd,
 	}, cleanup, nil
 }

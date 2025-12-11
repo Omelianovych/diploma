@@ -33,6 +33,12 @@ type TraceExecveArgsT struct {
 	Envp     [24][64]int8
 }
 
+type TraceMemfdArgsT struct {
+	_     structs.HostLayout
+	Flags uint32
+	Name  [128]int8
+}
+
 type TraceOpenatArgsT struct {
 	_        structs.HostLayout
 	Dfd      int32
@@ -90,16 +96,18 @@ type TraceSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type TraceProgramSpecs struct {
-	TraceEnterAccept4 *ebpf.ProgramSpec `ebpf:"trace_enter_accept4"`
-	TraceEnterConnect *ebpf.ProgramSpec `ebpf:"trace_enter_connect"`
-	TraceEnterExecve  *ebpf.ProgramSpec `ebpf:"trace_enter_execve"`
-	TraceEnterOpenat  *ebpf.ProgramSpec `ebpf:"trace_enter_openat"`
-	TraceEnterPtrace  *ebpf.ProgramSpec `ebpf:"trace_enter_ptrace"`
-	TraceExitAccept4  *ebpf.ProgramSpec `ebpf:"trace_exit_accept4"`
-	TraceExitConnect  *ebpf.ProgramSpec `ebpf:"trace_exit_connect"`
-	TraceExitExecve   *ebpf.ProgramSpec `ebpf:"trace_exit_execve"`
-	TraceExitOpenat   *ebpf.ProgramSpec `ebpf:"trace_exit_openat"`
-	TraceExitPtrace   *ebpf.ProgramSpec `ebpf:"trace_exit_ptrace"`
+	TraceEnterAccept4     *ebpf.ProgramSpec `ebpf:"trace_enter_accept4"`
+	TraceEnterConnect     *ebpf.ProgramSpec `ebpf:"trace_enter_connect"`
+	TraceEnterExecve      *ebpf.ProgramSpec `ebpf:"trace_enter_execve"`
+	TraceEnterMemfdCreate *ebpf.ProgramSpec `ebpf:"trace_enter_memfd_create"`
+	TraceEnterOpenat      *ebpf.ProgramSpec `ebpf:"trace_enter_openat"`
+	TraceEnterPtrace      *ebpf.ProgramSpec `ebpf:"trace_enter_ptrace"`
+	TraceExitAccept4      *ebpf.ProgramSpec `ebpf:"trace_exit_accept4"`
+	TraceExitConnect      *ebpf.ProgramSpec `ebpf:"trace_exit_connect"`
+	TraceExitExecve       *ebpf.ProgramSpec `ebpf:"trace_exit_execve"`
+	TraceExitMemfdCreate  *ebpf.ProgramSpec `ebpf:"trace_exit_memfd_create"`
+	TraceExitOpenat       *ebpf.ProgramSpec `ebpf:"trace_exit_openat"`
+	TraceExitPtrace       *ebpf.ProgramSpec `ebpf:"trace_exit_ptrace"`
 }
 
 // TraceMapSpecs contains maps before they are loaded into the kernel.
@@ -113,6 +121,8 @@ type TraceMapSpecs struct {
 	ExecveEvents      *ebpf.MapSpec `ebpf:"execve_events"`
 	ExecveHeap        *ebpf.MapSpec `ebpf:"execve_heap"`
 	ExecveTmpStorage  *ebpf.MapSpec `ebpf:"execve_tmp_storage"`
+	MemfdEvents       *ebpf.MapSpec `ebpf:"memfd_events"`
+	MemfdTmpStorage   *ebpf.MapSpec `ebpf:"memfd_tmp_storage"`
 	OpenatEvents      *ebpf.MapSpec `ebpf:"openat_events"`
 	OpenatTmpStorage  *ebpf.MapSpec `ebpf:"openat_tmp_storage"`
 	PtraceEvents      *ebpf.MapSpec `ebpf:"ptrace_events"`
@@ -152,6 +162,8 @@ type TraceMaps struct {
 	ExecveEvents      *ebpf.Map `ebpf:"execve_events"`
 	ExecveHeap        *ebpf.Map `ebpf:"execve_heap"`
 	ExecveTmpStorage  *ebpf.Map `ebpf:"execve_tmp_storage"`
+	MemfdEvents       *ebpf.Map `ebpf:"memfd_events"`
+	MemfdTmpStorage   *ebpf.Map `ebpf:"memfd_tmp_storage"`
 	OpenatEvents      *ebpf.Map `ebpf:"openat_events"`
 	OpenatTmpStorage  *ebpf.Map `ebpf:"openat_tmp_storage"`
 	PtraceEvents      *ebpf.Map `ebpf:"ptrace_events"`
@@ -167,6 +179,8 @@ func (m *TraceMaps) Close() error {
 		m.ExecveEvents,
 		m.ExecveHeap,
 		m.ExecveTmpStorage,
+		m.MemfdEvents,
+		m.MemfdTmpStorage,
 		m.OpenatEvents,
 		m.OpenatTmpStorage,
 		m.PtraceEvents,
@@ -184,16 +198,18 @@ type TraceVariables struct {
 //
 // It can be passed to LoadTraceObjects or ebpf.CollectionSpec.LoadAndAssign.
 type TracePrograms struct {
-	TraceEnterAccept4 *ebpf.Program `ebpf:"trace_enter_accept4"`
-	TraceEnterConnect *ebpf.Program `ebpf:"trace_enter_connect"`
-	TraceEnterExecve  *ebpf.Program `ebpf:"trace_enter_execve"`
-	TraceEnterOpenat  *ebpf.Program `ebpf:"trace_enter_openat"`
-	TraceEnterPtrace  *ebpf.Program `ebpf:"trace_enter_ptrace"`
-	TraceExitAccept4  *ebpf.Program `ebpf:"trace_exit_accept4"`
-	TraceExitConnect  *ebpf.Program `ebpf:"trace_exit_connect"`
-	TraceExitExecve   *ebpf.Program `ebpf:"trace_exit_execve"`
-	TraceExitOpenat   *ebpf.Program `ebpf:"trace_exit_openat"`
-	TraceExitPtrace   *ebpf.Program `ebpf:"trace_exit_ptrace"`
+	TraceEnterAccept4     *ebpf.Program `ebpf:"trace_enter_accept4"`
+	TraceEnterConnect     *ebpf.Program `ebpf:"trace_enter_connect"`
+	TraceEnterExecve      *ebpf.Program `ebpf:"trace_enter_execve"`
+	TraceEnterMemfdCreate *ebpf.Program `ebpf:"trace_enter_memfd_create"`
+	TraceEnterOpenat      *ebpf.Program `ebpf:"trace_enter_openat"`
+	TraceEnterPtrace      *ebpf.Program `ebpf:"trace_enter_ptrace"`
+	TraceExitAccept4      *ebpf.Program `ebpf:"trace_exit_accept4"`
+	TraceExitConnect      *ebpf.Program `ebpf:"trace_exit_connect"`
+	TraceExitExecve       *ebpf.Program `ebpf:"trace_exit_execve"`
+	TraceExitMemfdCreate  *ebpf.Program `ebpf:"trace_exit_memfd_create"`
+	TraceExitOpenat       *ebpf.Program `ebpf:"trace_exit_openat"`
+	TraceExitPtrace       *ebpf.Program `ebpf:"trace_exit_ptrace"`
 }
 
 func (p *TracePrograms) Close() error {
@@ -201,11 +217,13 @@ func (p *TracePrograms) Close() error {
 		p.TraceEnterAccept4,
 		p.TraceEnterConnect,
 		p.TraceEnterExecve,
+		p.TraceEnterMemfdCreate,
 		p.TraceEnterOpenat,
 		p.TraceEnterPtrace,
 		p.TraceExitAccept4,
 		p.TraceExitConnect,
 		p.TraceExitExecve,
+		p.TraceExitMemfdCreate,
 		p.TraceExitOpenat,
 		p.TraceExitPtrace,
 	)

@@ -67,21 +67,21 @@ struct connect_args_t {
 
 struct accept_event {
   struct common_event common;
-  int ret;  // Возвращенный FD
-  u32 ip;   // Remote IP
-  u16 port; // Remote Port
+  int ret;
+  u32 ip;
+  u16 port;
 };
 
 struct accept_args_t {
-  u64 addr; // Указатель на структуру в user-space
+  u64 addr;
 };
 
 struct ptrace_event {
   struct common_event common;
   int ret;
   int _pad;
-  u64 request;    // PTRACE_ATTACH, PTRACE_PEEKTEXT и т.д.
-  int target_pid; // PID процесса, над которым совершается действие
+  u64 request;
+  int target_pid;
   int _pad2;
   u64 addr;
 };
@@ -91,6 +91,19 @@ struct ptrace_args_t {
   int target_pid;
   u64 addr;
 };
+
+struct memfd_event {
+  struct common_event common;
+  int ret;
+  unsigned int flags;
+  char name[FILE_NAME_LEN];
+};
+
+struct memfd_args_t {
+  unsigned int flags;
+  char name[FILE_NAME_LEN];
+};
+
 // --- MAPS ---
 
 struct {
@@ -159,6 +172,18 @@ struct {
   __type(key, u32);
   __type(value, struct ptrace_args_t);
 } ptrace_tmp_storage SEC(".maps");
+
+struct {
+  __uint(type, BPF_MAP_TYPE_RINGBUF);
+  __uint(max_entries, 1 << 24);
+} memfd_events SEC(".maps");
+
+struct {
+  __uint(type, BPF_MAP_TYPE_HASH);
+  __uint(max_entries, 10240);
+  __type(key, u32);
+  __type(value, struct memfd_args_t);
+} memfd_tmp_storage SEC(".maps");
 // --- HELPERS ---
 
 static __always_inline void fill_common_event(struct common_event *e) {
@@ -489,6 +514,47 @@ int trace_exit_ptrace(struct trace_event_raw_sys_exit *ctx) {
 
   bpf_ringbuf_submit(e, 0);
   bpf_map_delete_elem(&ptrace_tmp_storage, &tid);
+  return 0;
+}
+
+SEC("tracepoint/syscalls/sys_enter_memfd_create")
+int trace_enter_memfd_create(struct trace_event_raw_sys_enter *ctx) {
+  u64 id = bpf_get_current_pid_tgid();
+  u32 tid = id;
+
+  struct memfd_args_t args = {};
+
+  bpf_probe_read_user_str(&args.name, sizeof(args.name), (char *)ctx->args[0]);
+
+  args.flags = (unsigned int)ctx->args[1];
+
+  bpf_map_update_elem(&memfd_tmp_storage, &tid, &args, BPF_ANY);
+  return 0;
+}
+
+SEC("tracepoint/syscalls/sys_exit_memfd_create")
+int trace_exit_memfd_create(struct trace_event_raw_sys_exit *ctx) {
+  u64 id = bpf_get_current_pid_tgid();
+  u32 tid = id;
+
+  struct memfd_args_t *saved_args =
+      bpf_map_lookup_elem(&memfd_tmp_storage, &tid);
+  if (!saved_args)
+    return 0;
+
+  struct memfd_event *e = bpf_ringbuf_reserve(&memfd_events, sizeof(*e), 0);
+  if (!e) {
+    bpf_map_delete_elem(&memfd_tmp_storage, &tid);
+    return 0;
+  }
+
+  fill_common_event(&e->common);
+  e->ret = (int)ctx->ret; // Це буде файловий дескриптор анонімного файлу
+  e->flags = saved_args->flags;
+  bpf_probe_read_kernel(&e->name, sizeof(e->name), saved_args->name);
+
+  bpf_ringbuf_submit(e, 0);
+  bpf_map_delete_elem(&memfd_tmp_storage, &tid);
   return 0;
 }
 

@@ -40,9 +40,8 @@ type Analyzer struct {
 	Rules []Rule
 }
 
-// EnrichedEvent - обертка над событием, добавляющая вычисленные данные (absolutePath)
 type EnrichedEvent struct {
-	events.EventGetter // Встраиваем интерфейс (оригинальное событие)
+	events.EventGetter // интерфейс (оригинальное событие)
 	ResolvedPath       string
 }
 
@@ -58,11 +57,9 @@ func (e *EnrichedEvent) GetField(name string) (interface{}, bool) {
 	case "proc.exepath":
 		return e.ResolvedPath, true
 	}
-	// Делегируем оригинальному событию
 	return e.EventGetter.GetField(name)
 }
 
-// GetType просто вызывает метод оригинального события
 func (e *EnrichedEvent) GetType() string {
 	return e.EventGetter.GetType()
 }
@@ -82,48 +79,35 @@ func (a *Analyzer) checkRules(evt events.EventGetter) {
 	}
 }
 
-// HandleOpenat - Обработка события открытия файла
 func (a *Analyzer) HandleOpenat(event events.OpenatEvent) {
-	// 1. Парсинг
 	rawFilename := events.BytesToString(event.Filename[:])
 
-	// 2. Обогащение (бизнес-логика)
 	absolutePath := a.resolvePath(event.Common.Pid, event.Ret, rawFilename)
 
-	// 3. Создаем Обогащенное событие
-	enrichedEvt := &EnrichedEvent{
-		EventGetter:  &event, // передаем указатель на struct, так как методы реализованы на *OpenatEvent
-		ResolvedPath: absolutePath,
-	}
-
-	// 4. Проверка правил (передаем уже enrichedEvt)
-	a.checkRules(enrichedEvt)
-
-	// 5. Логирование (опционально, для отладки)
-	// log.Printf("[OPENAT] File: %s", absolutePath)
-}
-
-// HandleExecve - Обработка события запуска процесса
-func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
-	// 1. Парсинг
-	rawFilename := events.BytesToString(event.Filename[:])
-
-	// 2. Обогащение
-	absolutePath := a.resolvePath(event.Common.Pid, -1, rawFilename)
-
-	// 3. Создаем Обогащенное событие
 	enrichedEvt := &EnrichedEvent{
 		EventGetter:  &event,
 		ResolvedPath: absolutePath,
 	}
 
-	// 4. Проверка правил
+	a.checkRules(enrichedEvt)
+
+	// log.Printf("[OPENAT] File: %s", absolutePath)
+}
+
+func (a *Analyzer) HandleExecve(event events.ExecveEvent) {
+	rawFilename := events.BytesToString(event.Filename[:])
+
+	absolutePath := a.resolvePath(event.Common.Pid, -1, rawFilename)
+
+	enrichedEvt := &EnrichedEvent{
+		EventGetter:  &event,
+		ResolvedPath: absolutePath,
+	}
+
 	a.checkRules(enrichedEvt)
 }
 
 func (a *Analyzer) HandleConnect(event events.ConnectEvent) {
-	// Connect пока не требует обогащения пути, передаем как есть
-	// Но передаем указатель, чтобы сработал интерфейс
 	a.checkRules(&event)
 }
 
@@ -135,7 +119,13 @@ func (a *Analyzer) HandlePtrace(event events.PtraceEvent) {
 	a.checkRules(&event)
 }
 
-// resolvePath - Универсальная логика получения абсолютного пути
+func (a *Analyzer) HandleMemfd(event events.MemfdEvent) {
+	name := events.BytesToString(event.Name[:])
+	log.Printf("[DEBUG] MEMFD_CREATE: Pid=%d Name='%s' Flags=%d RetFD=%d",
+		event.Common.Pid, name, event.Flags, event.Ret)
+	a.checkRules(&event)
+}
+
 func (a *Analyzer) resolvePath(pid uint32, fd int32, filename string) string {
 	// 1. Если есть успешный дескриптор - пробуем взять путь из /proc/PID/fd/FD
 	if fd >= 0 {
