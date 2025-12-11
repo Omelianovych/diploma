@@ -16,6 +16,7 @@ type LoaderResult struct {
 	AcceptReader  *ringbuf.Reader
 	PtraceReader  *ringbuf.Reader
 	MemfdReader   *ringbuf.Reader
+	ChmodReader   *ringbuf.Reader
 }
 
 func Setup() (*LoaderResult, func(), error) {
@@ -121,8 +122,19 @@ func Setup() (*LoaderResult, func(), error) {
 	}
 	links = append(links, l12)
 
+	l13, err := link.Tracepoint("syscalls", "sys_enter_fchmodat", objs.TraceEnterFchmodat, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	links = append(links, l13)
+
+	l14, err := link.Tracepoint("syscalls", "sys_exit_fchmodat", objs.TraceExitFchmodat, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	links = append(links, l14)
+
 	// --- READERS ---
-	// Читаем из карты OpenatEvents
 	rdOpenat, err := ringbuf.NewReader(objs.OpenatEvents)
 	if err != nil {
 		return nil, nil, err
@@ -150,6 +162,11 @@ func Setup() (*LoaderResult, func(), error) {
 		return nil, nil, fmt.Errorf("reader memfd: %v", err)
 	}
 
+	rdChmod, err := ringbuf.NewReader(objs.ChmodEvents)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	cleanup := func() {
 		rdOpenat.Close()
 		rdExecve.Close()
@@ -157,6 +174,7 @@ func Setup() (*LoaderResult, func(), error) {
 		rdAccept.Close()
 		rdPtrace.Close()
 		rdMemfd.Close()
+		rdChmod.Close()
 		for _, l := range links {
 			l.Close()
 		}
@@ -170,5 +188,6 @@ func Setup() (*LoaderResult, func(), error) {
 		AcceptReader:  rdAccept,
 		PtraceReader:  rdPtrace, // NEW
 		MemfdReader:   rdMemfd,
+		ChmodReader:   rdChmod,
 	}, cleanup, nil
 }

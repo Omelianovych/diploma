@@ -73,6 +73,13 @@ type MemfdEvent struct {
 	Name   [128]byte
 }
 
+type ChmodEvent struct {
+	Common   CommonEvent
+	Ret      int32
+	Mode     uint32
+	Filename [128]byte
+}
+
 // --- String() ---
 
 func BytesToString(data []byte) string {

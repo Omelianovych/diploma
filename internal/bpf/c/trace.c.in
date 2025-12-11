@@ -104,6 +104,18 @@ struct memfd_args_t {
   char name[FILE_NAME_LEN];
 };
 
+struct chmod_event {
+  struct common_event common;
+  int ret;
+  u32 mode;
+  char filename[FILE_NAME_LEN];
+};
+
+struct chmod_args_t {
+  int dfd;
+  u32 mode;
+  char filename[FILE_NAME_LEN];
+};
 // --- MAPS ---
 
 struct {
@@ -184,6 +196,18 @@ struct {
   __type(key, u32);
   __type(value, struct memfd_args_t);
 } memfd_tmp_storage SEC(".maps");
+
+struct {
+  __uint(type, BPF_MAP_TYPE_RINGBUF);
+  __uint(max_entries, 1 << 24);
+} chmod_events SEC(".maps");
+
+struct {
+  __uint(type, BPF_MAP_TYPE_HASH);
+  __uint(max_entries, 10240);
+  __type(key, u32);
+  __type(value, struct chmod_args_t);
+} chmod_tmp_storage SEC(".maps");
 // --- HELPERS ---
 
 static __always_inline void fill_common_event(struct common_event *e) {
@@ -555,6 +579,53 @@ int trace_exit_memfd_create(struct trace_event_raw_sys_exit *ctx) {
 
   bpf_ringbuf_submit(e, 0);
   bpf_map_delete_elem(&memfd_tmp_storage, &tid);
+  return 0;
+}
+
+SEC("tracepoint/syscalls/sys_enter_fchmodat")
+int trace_enter_fchmodat(struct trace_event_raw_sys_enter *ctx) {
+  u64 id = bpf_get_current_pid_tgid();
+  u32 tid = id;
+
+  struct chmod_args_t args = {};
+  // fchmodat(int dfd, const char *filename, mode_t mode)
+
+  args.dfd = (int)ctx->args[0];
+  bpf_probe_read_user_str(&args.filename, sizeof(args.filename),
+                          (char *)ctx->args[1]);
+  args.mode = (u32)ctx->args[2];
+
+  bpf_printk("chmod: pid=%d mode=0x%x f=%s\n", tid, args.mode, args.filename);
+  bpf_map_update_elem(&chmod_tmp_storage, &tid, &args, BPF_ANY);
+  return 0;
+}
+
+SEC("tracepoint/syscalls/sys_exit_fchmodat")
+int trace_exit_fchmodat(struct trace_event_raw_sys_exit *ctx) {
+  u64 id = bpf_get_current_pid_tgid();
+  u32 tid = id;
+
+  struct chmod_args_t *saved_args =
+      bpf_map_lookup_elem(&chmod_tmp_storage, &tid);
+  if (!saved_args)
+    return 0;
+
+  bpf_printk("chmod exit: pid=%d ret=%d\n", tid, (int)ctx->ret);
+
+  struct chmod_event *e = bpf_ringbuf_reserve(&chmod_events, sizeof(*e), 0);
+  if (!e) {
+    bpf_map_delete_elem(&chmod_tmp_storage, &tid);
+    return 0;
+  }
+
+  fill_common_event(&e->common);
+  e->ret = (int)ctx->ret;
+  e->mode = saved_args->mode;
+  bpf_probe_read_kernel(&e->filename, sizeof(e->filename),
+                        saved_args->filename);
+
+  bpf_ringbuf_submit(e, 0);
+  bpf_map_delete_elem(&chmod_tmp_storage, &tid);
   return 0;
 }
 

@@ -141,3 +141,21 @@ func (e *MemfdEvent) GetField(name string) (interface{}, bool) {
 	}
 	return getCommonField(&e.Common, name)
 }
+
+// --- ChmodEvent ---
+
+func (e *ChmodEvent) GetType() string {
+	return "chmod"
+}
+
+func (e *ChmodEvent) GetField(name string) (interface{}, bool) {
+	switch name {
+	case "fd.name", "evt.arg.filename":
+		return BytesToString(e.Filename[:]), true
+	case "evt.arg.mode":
+		return fmt.Sprintf("0%o", e.Mode), true
+	case "evt.res":
+		return int(e.Ret), true
+	}
+	return getCommonField(&e.Common, name)
+}

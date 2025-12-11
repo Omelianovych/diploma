@@ -36,7 +36,8 @@ func main() {
 	poller.Start(loaded.AcceptReader, engine.HandleAccept)
 	poller.Start(loaded.PtraceReader, engine.HandlePtrace)
 	poller.Start(loaded.MemfdReader, engine.HandleMemfd)
-	log.Println("Security Monitor запущено (Openat + Execve)...")
+	poller.Start(loaded.ChmodReader, engine.HandleChmod)
+	log.Println("Security Monitor запущено")
 
 	stopper := make(chan os.Signal, 1)
 	signal.Notify(stopper, os.Interrupt, syscall.SIGTERM)

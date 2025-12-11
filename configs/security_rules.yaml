@@ -19,15 +19,15 @@ rules:
         operator: "="
         value: "nc"
 
-  - name: "Suspicious Downloader (curl)"
-    severity: "INFO"
-    event_types:
-      - "execve"
-    message: "Curl utility executed"
-    conditions:
-      - field: "proc.name"
-        operator: "="
-        value: "curl"
+  # - name: "Suspicious Downloader (curl)"
+  #   severity: "INFO"
+  #   event_types:
+  #     - "execve"
+  #   message: "Curl utility executed"
+  #   conditions:
+  #     - field: "proc.name"
+  #       operator: "="
+  #       value: "curl"
 
   - name: "Detect ls -l command"
     severity: "INFO"
@@ -41,3 +41,31 @@ rules:
       - field: "proc.cmdline"
         operator: "contains"
         value: "-l"
+  - name: "Suspicious Network Utilities"
+    severity: "WARNING"
+    event_types:
+      - "execve"
+    message: "Suspicious network tool executed"
+    conditions:
+      - field: "proc.name"
+        operator: "in"
+        value: "curl, wget, nc, ncat, netcat, ssh"
+  - name: "Insecure CHMOD 777"
+    severity: "HIGH"
+    event_types:
+      - "chmod"
+    message: "File made world-writable/executable (0777 detected)"
+    conditions:
+      - field: "evt.arg.mode"
+        operator: "="
+        value: "0777"
+
+  - name: "Fileless Execution via memfd"
+    severity: "CRITICAL"
+    event_types:
+      - "memfd_create"
+    message: "Anonymous memory file created (potential fileless malware)"
+    conditions:
+      - field: "evt.res"
+        operator: "="
+        value: "27"

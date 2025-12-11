@@ -126,6 +126,21 @@ func (a *Analyzer) HandleMemfd(event events.MemfdEvent) {
 	a.checkRules(&event)
 }
 
+func (a *Analyzer) HandleChmod(event events.ChmodEvent) {
+	rawFilename := events.BytesToString(event.Filename[:])
+
+	absolutePath := a.resolvePath(event.Common.Pid, -1, rawFilename)
+
+	log.Printf("[DEBUG] CHMOD: Pid=%d File=%s Mode=0%o",
+		event.Common.Pid, absolutePath, event.Mode)
+
+	enrichedEvt := &EnrichedEvent{
+		EventGetter:  &event,
+		ResolvedPath: absolutePath,
+	}
+	a.checkRules(enrichedEvt)
+}
+
 func (a *Analyzer) resolvePath(pid uint32, fd int32, filename string) string {
 	// 1. Если есть успешный дескриптор - пробуем взять путь из /proc/PID/fd/FD
 	if fd >= 0 {

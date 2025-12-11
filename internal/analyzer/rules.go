@@ -8,18 +8,18 @@ import (
 
 // Condition - одно условие (например: proc.name = "nc")
 type Condition struct {
-	Field    string `yaml:"field"`    // proc.name
-	Operator string `yaml:"operator"` // =, !=, startswith, contains
-	Value    string `yaml:"value"`    // nc
+	Field    string `yaml:"field"`
+	Operator string `yaml:"operator"`
+	Value    string `yaml:"value"`
 }
 
 // Rule - правило целиком
 type Rule struct {
 	Name       string      `yaml:"name"`
-	EventTypes []string    `yaml:"event_types"` // ["openat", "open"]
-	Conditions []Condition `yaml:"conditions"`  // Все условия должны выполниться (AND)
+	EventTypes []string    `yaml:"event_types"`
+	Conditions []Condition `yaml:"conditions"`
 	Severity   string      `yaml:"severity"`
-	Message    string      `yaml:"message"` // Шаблон сообщения
+	Message    string      `yaml:"message"`
 }
 
 type RulesConfig struct {
@@ -67,7 +67,22 @@ func checkCondition(fieldVal interface{}, operator, ruleVal string) bool {
 		return strings.HasPrefix(strVal, ruleVal)
 	case "contains":
 		return strings.Contains(strVal, ruleVal)
-		// Добавить поддержку списков (in), регулярки и т.д.
+	case "in":
+		candidates := strings.Split(ruleVal, ",")
+		for _, c := range candidates {
+			if strVal == strings.TrimSpace(c) {
+				return true
+			}
+		}
+		return false
+	case "not in":
+		candidates := strings.Split(ruleVal, ",")
+		for _, c := range candidates {
+			if strVal == strings.TrimSpace(c) {
+				return false
+			}
+		}
+		return true
 	}
 	return false
 }
