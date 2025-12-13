@@ -32,16 +32,15 @@ func (e *OpenatEvent) GetType() string {
 }
 
 func (e *OpenatEvent) GetField(name string) (interface{}, bool) {
-	// Сначала ищем в специфичных полях
 	switch name {
 	case "fd.name", "evt.arg.filename":
 		return BytesToString(e.Filename[:]), true
 	case "evt.arg.flags":
 		return int(e.Flags), true
 	case "evt.res", "fd.num":
-		return int(e.Ret), true // Если успех, ret = fd
+		return int(e.Ret), true
 	}
-	// Если не нашли, ищем в общих
+
 	return getCommonField(&e.Common, name)
 }
 

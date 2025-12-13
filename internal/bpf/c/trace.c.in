@@ -6,7 +6,7 @@
 
 #define TASK_COMM_LEN 16
 #define FILE_NAME_LEN 128
-// Максимум 16 аргументов (безопасный лимит для верификатора)
+
 #define MAX_ARGS_COUNT 24
 #define ARG_SIZE 64
 #define AF_INET 2
@@ -29,13 +29,12 @@ struct openat_event {
   char filename[FILE_NAME_LEN];
 };
 
-// Изменили структуру: используем argv и envp
 struct execve_event {
   struct common_event common;
   int ret;
   char filename[FILE_NAME_LEN];
-  char argv[MAX_ARGS_COUNT][ARG_SIZE]; // Было args
-  char envp[MAX_ARGS_COUNT][ARG_SIZE]; // Было envs
+  char argv[MAX_ARGS_COUNT][ARG_SIZE];
+  char envp[MAX_ARGS_COUNT][ARG_SIZE];
 };
 
 struct openat_args_t {
@@ -44,19 +43,18 @@ struct openat_args_t {
   char filename[FILE_NAME_LEN];
 };
 
-// Промежуточное хранилище тоже обновляем
 struct execve_args_t {
   char filename[FILE_NAME_LEN];
-  char argv[MAX_ARGS_COUNT][ARG_SIZE]; // Было args
-  char envp[MAX_ARGS_COUNT][ARG_SIZE]; // Было envs
+  char argv[MAX_ARGS_COUNT][ARG_SIZE];
+  char envp[MAX_ARGS_COUNT][ARG_SIZE];
 };
 
 struct connect_event {
   struct common_event common;
   int ret;
   int fd;
-  u32 ip;   // IPv4 адрес (в сетевом порядке или хостовом, разберемся в Go)
-  u16 port; // Порт
+  u32 ip;
+  u16 port;
 };
 
 struct connect_args_t {
@@ -284,20 +282,17 @@ int trace_enter_execve(struct trace_event_raw_sys_enter *ctx) {
   if (!args)
     return 0;
 
-  // Очистка памяти вручную (первые байты)
   args->filename[0] = '\0';
 
 #pragma unroll
   for (int i = 0; i < MAX_ARGS_COUNT; i++) {
-    args->argv[i][0] = '\0'; // Было args
-    args->envp[i][0] = '\0'; // Было envs
+    args->argv[i][0] = '\0';
+    args->envp[i][0] = '\0';
   }
 
-  // 1. Имя файла
   bpf_probe_read_user_str(&args->filename, sizeof(args->filename),
                           (char *)ctx->args[0]);
 
-  // 2. Аргументы (argv)
   const char **argv = (const char **)ctx->args[1];
 
   if (argv) {
@@ -307,12 +302,11 @@ int trace_enter_execve(struct trace_event_raw_sys_enter *ctx) {
       if (bpf_probe_read_user(&argp, sizeof(argp), &argv[i]) < 0 || !argp) {
         break;
       }
-      // Пишем в argv
+      // в argv
       bpf_probe_read_user_str(&args->argv[i], ARG_SIZE, argp);
     }
   }
 
-  // 3. Окружение (envp)
   const char **envp = (const char **)ctx->args[2];
   if (envp) {
 #pragma unroll
@@ -321,7 +315,6 @@ int trace_enter_execve(struct trace_event_raw_sys_enter *ctx) {
       if (bpf_probe_read_user(&env_ptr, sizeof(env_ptr), &envp[i]) < 0 ||
           !env_ptr)
         break;
-      // Пишем в envp
       bpf_probe_read_user_str(&args->envp[i], ARG_SIZE, env_ptr);
     }
   }
@@ -347,7 +340,6 @@ int trace_exit_execve(struct trace_event_raw_sys_exit *ctx) {
 
   fill_common_event(&e->common);
 
-  // Кастим контекст для верности (хотя оффсеты ret обычно совпадают)
   struct trace_event_raw_sys_exit *exit_ctx =
       (struct trace_event_raw_sys_exit *)ctx;
   e->ret = (int)exit_ctx->ret;
@@ -355,10 +347,8 @@ int trace_exit_execve(struct trace_event_raw_sys_exit *ctx) {
   bpf_probe_read_kernel(&e->filename, sizeof(e->filename),
                         saved_args->filename);
 
-  // Копируем argv
   bpf_probe_read_kernel(&e->argv, sizeof(e->argv), saved_args->argv);
 
-  // Копируем envp
   bpf_probe_read_kernel(&e->envp, sizeof(e->envp), saved_args->envp);
 
   bpf_ringbuf_submit(e, 0);
@@ -373,28 +363,22 @@ int trace_enter_connect(struct trace_event_raw_sys_enter *ctx) {
   u64 id = bpf_get_current_pid_tgid();
   u32 tid = id;
 
-  // Аргументы connect: int sockfd, const struct sockaddr *addr, socklen_t
-  // addrlen
   struct sockaddr *useraddr = (struct sockaddr *)ctx->args[1];
 
-  // Считываем семейство адресов (AF_INET, AF_INET6)
   short family;
   if (bpf_probe_read_user(&family, sizeof(family), &useraddr->sa_family) < 0) {
     return 0;
   }
 
-  // Пока обрабатываем только IPv4 (AF_INET = 2)
   if (family != AF_INET) {
     return 0;
   }
 
-  // Кастим к sockaddr_in чтобы достать IP и порт
   struct sockaddr_in *addr_in = (struct sockaddr_in *)useraddr;
   struct connect_args_t args = {};
 
   args.fd = (int)ctx->args[0];
 
-  // Читаем IP и Port
   bpf_probe_read_user(&args.ip, sizeof(args.ip), &addr_in->sin_addr.s_addr);
   bpf_probe_read_user(&args.port, sizeof(args.port), &addr_in->sin_port);
 
@@ -439,8 +423,6 @@ int trace_enter_accept4(struct trace_event_raw_sys_enter *ctx) {
   u32 tid = id;
 
   struct accept_args_t args = {};
-  // 2-й аргумент accept4: struct sockaddr *upeer_sockaddr
-  // ИСПРАВЛЕНИЕ: кастим к u64
   args.addr = (u64)ctx->args[1];
 
   bpf_map_update_elem(&accept_tmp_storage, &tid, &args, BPF_ANY);
@@ -457,7 +439,6 @@ int trace_exit_accept4(struct trace_event_raw_sys_exit *ctx) {
   if (!saved_args)
     return 0;
 
-  // Если accept вернул ошибку (<0), значит соединения нет
   if (ctx->ret < 0) {
     bpf_map_delete_elem(&accept_tmp_storage, &tid);
     return 0;
@@ -472,9 +453,7 @@ int trace_exit_accept4(struct trace_event_raw_sys_exit *ctx) {
   fill_common_event(&e->common);
   e->ret = (int)ctx->ret;
 
-  // Читаем IP/Port, которые ядро записало в память пользователя
   if (saved_args->addr) {
-    // ИСПРАВЛЕНИЕ: кастим u64 обратно к указателю
     struct sockaddr *sa = (struct sockaddr *)saved_args->addr;
     short family;
     bpf_probe_read_user(&family, sizeof(family), &sa->sa_family);
@@ -505,8 +484,8 @@ int trace_enter_ptrace(struct trace_event_raw_sys_enter *ctx) {
   args.target_pid = (int)ctx->args[1];
   args.addr = (u64)ctx->args[2];
 
-  bpf_printk("ptrace enter: req=%ld pid=%d addr=0x%llx\n", args.request,
-             args.target_pid, args.addr);
+  // bpf_printk("ptrace enter: req=%ld pid=%d addr=0x%llx\n", args.request,
+  //            args.target_pid, args.addr);
 
   bpf_map_update_elem(&ptrace_tmp_storage, &tid, &args, BPF_ANY);
   return 0;
@@ -573,7 +552,7 @@ int trace_exit_memfd_create(struct trace_event_raw_sys_exit *ctx) {
   }
 
   fill_common_event(&e->common);
-  e->ret = (int)ctx->ret; // Це буде файловий дескриптор анонімного файлу
+  e->ret = (int)ctx->ret;
   e->flags = saved_args->flags;
   bpf_probe_read_kernel(&e->name, sizeof(e->name), saved_args->name);
 

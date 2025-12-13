@@ -24,7 +24,6 @@ var ptraceRequests = map[uint64]string{
 	17: "PTRACE_DETACH",
 	24: "PTRACE_SYSCALL",
 
-	// --- Расширенные опции (Linux extended ptrace) ---
 	0x4200: "PTRACE_SETOPTIONS",  // 16896
 	0x4201: "PTRACE_GETEVENTMSG", // 16897
 	0x4202: "PTRACE_GETSIGINFO",  // 16898
@@ -41,19 +40,14 @@ type Analyzer struct {
 }
 
 type EnrichedEvent struct {
-	events.EventGetter // интерфейс (оригинальное событие)
-	ResolvedPath       string
+	events.EventGetter
+	ResolvedPath string
 }
 
-// GetField перехватывает запросы к полям пути.
-// Если просят путь файла - возвращаем ResolvedPath.
-// Все остальное перенаправляем в оригинальное событие.
 func (e *EnrichedEvent) GetField(name string) (interface{}, bool) {
 	switch name {
-	// Для Openat
 	case "fd.name", "evt.arg.filename":
 		return e.ResolvedPath, true
-	// Для Execve
 	case "proc.exepath":
 		return e.ResolvedPath, true
 	}
@@ -142,7 +136,6 @@ func (a *Analyzer) HandleChmod(event events.ChmodEvent) {
 }
 
 func (a *Analyzer) resolvePath(pid uint32, fd int32, filename string) string {
-	// 1. Если есть успешный дескриптор - пробуем взять путь из /proc/PID/fd/FD
 	if fd >= 0 {
 		linkPath := fmt.Sprintf("/proc/%d/fd/%d", pid, fd)
 		if realPath, err := os.Readlink(linkPath); err == nil {
@@ -155,7 +148,6 @@ func (a *Analyzer) resolvePath(pid uint32, fd int32, filename string) string {
 		return filename
 	}
 
-	// 3. Если путь относительный - склеиваем с CWD процесса
 	cwdLink := fmt.Sprintf("/proc/%d/cwd", pid)
 	if cwd, err := os.Readlink(cwdLink); err == nil {
 		return filepath.Join(cwd, filename)
