@@ -226,6 +226,20 @@ static __always_inline void fill_common_event(struct common_event *e) {
   bpf_probe_read_kernel(&e->pcomm, sizeof(e->pcomm), &parent->comm);
 }
 
+static __always_inline int str_equal(const char *s1, const char *s2,
+                                     int max_len) {
+#pragma unroll
+  for (int i = 0; i < max_len; i++) {
+    if (s1[i] == '\0' && s2[i] == '\0')
+      return 1;
+    if (s1[i] != s2[i])
+      return 0;
+    if (s1[i] == '\0' || s2[i] == '\0')
+      return 0;
+  }
+  return 0;
+}
+
 // --- OPENAT ---
 
 SEC("tracepoint/syscalls/sys_enter_openat")
@@ -544,6 +558,28 @@ int trace_exit_memfd_create(struct trace_event_raw_sys_exit *ctx) {
       bpf_map_lookup_elem(&memfd_tmp_storage, &tid);
   if (!saved_args)
     return 0;
+
+  char comm[TASK_COMM_LEN];
+  bpf_get_current_comm(&comm, sizeof(comm));
+  if (str_equal(comm, "firefox", TASK_COMM_LEN) ||
+      str_equal(comm, "pulseaudio", TASK_COMM_LEN) ||
+      str_equal(comm, "pipewire", TASK_COMM_LEN) ||
+      str_equal(comm, "pipewire-pulse", TASK_COMM_LEN) ||
+      str_equal(comm, "systemd", TASK_COMM_LEN) ||
+      str_equal(comm, "dockerd", TASK_COMM_LEN) ||
+      str_equal(comm, "containerd", TASK_COMM_LEN) ||
+      str_equal(comm, "Xorg", TASK_COMM_LEN) ||
+      str_equal(comm, "wayland-cursor", TASK_COMM_LEN) ||
+      str_equal(comm, "MainThread", TASK_COMM_LEN)) {
+
+    bpf_map_delete_elem(&memfd_tmp_storage, &tid);
+    return 0;
+  }
+
+  if (str_equal(saved_args->name, "mozilla-ipc", FILE_NAME_LEN)) {
+    bpf_map_delete_elem(&memfd_tmp_storage, &tid);
+    return 0;
+  }
 
   struct memfd_event *e = bpf_ringbuf_reserve(&memfd_events, sizeof(*e), 0);
   if (!e) {

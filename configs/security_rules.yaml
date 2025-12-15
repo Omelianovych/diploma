@@ -173,12 +173,6 @@ rules:
       - field: "evt.res"
         operator: "!="
         value: "-1"
-      - field: "proc.name"
-        operator: "not in"
-        value: "firefox,pulseaudio,pipewire,pipewire-pulse,systemd,dockerd,containerd,gnome-shell,Xorg,wayland-cursor,MainThread"
-      - field: "evt.arg.name"
-        operator: "!="
-        value: "mozilla-ipc"
 
   # MITRE T1055.008: Process Injection (Ptrace)
   - name: "Process Injection via PTRACE_ATTACH"
