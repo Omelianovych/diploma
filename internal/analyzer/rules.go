@@ -3,6 +3,7 @@ package analyzer
 import (
 	"diploma/internal/events"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -57,6 +58,14 @@ func checkCondition(fieldVal interface{}, operator, ruleVal string) bool {
 		return strVal == ruleVal
 	case "!=":
 		return strVal != ruleVal
+	case "lt": // less than
+		numVal, _ := strconv.Atoi(strVal)
+		ruleNum, _ := strconv.Atoi(ruleVal)
+		return numVal < ruleNum
+	case "mt": // more than
+		numVal, _ := strconv.Atoi(strVal)
+		ruleNum, _ := strconv.Atoi(ruleVal)
+		return numVal > ruleNum
 	case "startswith":
 		return strings.HasPrefix(strVal, ruleVal)
 	case "contains":

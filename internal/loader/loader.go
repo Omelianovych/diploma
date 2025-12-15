@@ -8,7 +8,6 @@ import (
 	"github.com/cilium/ebpf/ringbuf"
 )
 
-// LoaderResult хранит ридеры для разных типов событий
 type LoaderResult struct {
 	OpenatReader  *ringbuf.Reader
 	ExecveReader  *ringbuf.Reader
@@ -20,13 +19,11 @@ type LoaderResult struct {
 }
 
 func Setup() (*LoaderResult, func(), error) {
-	// Обрати внимание: теперь загружаем TraceObjects, а не OpenatObjects
 	objs := bpf.TraceObjects{}
 	if err := bpf.LoadTraceObjects(&objs, nil); err != nil {
 		return nil, nil, fmt.Errorf("loading objects: %v", err)
 	}
 
-	// Хранилище линков для очистки
 	var links []link.Link
 
 	// --- 1. OPENAT ---
@@ -39,7 +36,6 @@ func Setup() (*LoaderResult, func(), error) {
 
 	l2, err := link.Tracepoint("syscalls", "sys_exit_openat", objs.TraceExitOpenat, nil)
 	if err != nil {
-		// тут по-хорошему надо закрыть l1 и objs
 		return nil, nil, err
 	}
 	links = append(links, l2)
@@ -186,7 +182,7 @@ func Setup() (*LoaderResult, func(), error) {
 		ExecveReader:  rdExecve,
 		ConnectReader: rdConnect,
 		AcceptReader:  rdAccept,
-		PtraceReader:  rdPtrace, // NEW
+		PtraceReader:  rdPtrace,
 		MemfdReader:   rdMemfd,
 		ChmodReader:   rdChmod,
 	}, cleanup, nil

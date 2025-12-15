@@ -9,32 +9,6 @@ import (
 	"strings"
 )
 
-var ptraceRequests = map[uint64]string{
-	0:  "PTRACE_TRACEME",
-	1:  "PTRACE_PEEKTEXT",
-	2:  "PTRACE_PEEKDATA",
-	3:  "PTRACE_PEEKUSER",
-	4:  "PTRACE_POKETEXT",
-	5:  "PTRACE_POKEDATA",
-	6:  "PTRACE_POKEUSER",
-	7:  "PTRACE_CONT",
-	8:  "PTRACE_KILL",
-	9:  "PTRACE_SINGLESTEP",
-	16: "PTRACE_ATTACH",
-	17: "PTRACE_DETACH",
-	24: "PTRACE_SYSCALL",
-
-	0x4200: "PTRACE_SETOPTIONS",  // 16896
-	0x4201: "PTRACE_GETEVENTMSG", // 16897
-	0x4202: "PTRACE_GETSIGINFO",  // 16898
-	0x4203: "PTRACE_SETSIGINFO",
-	0x4206: "PTRACE_SEIZE",     // 16902
-	0x4207: "PTRACE_INTERRUPT", // 16903
-	0x4208: "PTRACE_LISTEN",    // 16904
-	0x420E: "PTRACE_GETREGSET", // 16910 (Чтение регистров)
-	0x420F: "PTRACE_SETREGSET", // (Запись регистров)
-}
-
 type Analyzer struct {
 	Rules []Rule
 }
@@ -67,8 +41,39 @@ func New(rulesCfg RulesConfig) *Analyzer {
 func (a *Analyzer) checkRules(evt events.EventGetter) {
 	for _, rule := range a.Rules {
 		if rule.CheckEvent(evt) {
-			log.Printf("[ALERT] RULE MATCH: %s | Severity: %s | Payload: %s",
-				rule.Name, rule.Severity, rule.Message)
+			procName, _ := evt.GetField("proc.name")
+			pid, _ := evt.GetField("proc.pid")
+
+			var target string
+
+			switch evt.GetType() {
+			case "openat", "chmod":
+				if val, ok := evt.GetField("evt.arg.filename"); ok {
+					target = fmt.Sprintf("File: %v", val)
+				}
+			case "execve":
+				if val, ok := evt.GetField("proc.cmdline"); ok {
+					cmd := fmt.Sprintf("%v", val)
+					if len(cmd) > 50 {
+						cmd = cmd[:47] + "..."
+					}
+					target = fmt.Sprintf("Cmd: %s", cmd)
+				}
+			case "connect", "accept":
+				ip, _ := evt.GetField("fd.ip")
+				port, _ := evt.GetField("fd.port")
+				target = fmt.Sprintf("Net: %v:%v", ip, port)
+			case "ptrace":
+				req, _ := evt.GetField("evt.arg.request")
+				tpid, _ := evt.GetField("proc.target_pid")
+				target = fmt.Sprintf("Req: %v -> TargetPid: %v", req, tpid)
+			case "memfd_create":
+				name, _ := evt.GetField("evt.arg.name")
+				target = fmt.Sprintf("MemfdName: %v", name)
+			}
+
+			log.Printf("[ALERT] %s [%s] | Msg: %s | Proc: %v(%v) | %s",
+				rule.Name, rule.Severity, rule.Message, procName, pid, target)
 		}
 	}
 }
@@ -114,9 +119,9 @@ func (a *Analyzer) HandlePtrace(event events.PtraceEvent) {
 }
 
 func (a *Analyzer) HandleMemfd(event events.MemfdEvent) {
-	name := events.BytesToString(event.Name[:])
-	log.Printf("[DEBUG] MEMFD_CREATE: Pid=%d Name='%s' Flags=%d RetFD=%d",
-		event.Common.Pid, name, event.Flags, event.Ret)
+	// name := events.BytesToString(event.Name[:])
+	// log.Printf("[DEBUG] MEMFD_CREATE: Pid=%d Name='%s' Flags=%d RetFD=%d",
+	// 	event.Common.Pid, name, event.Flags, event.Ret)
 	a.checkRules(&event)
 }
 
@@ -125,8 +130,8 @@ func (a *Analyzer) HandleChmod(event events.ChmodEvent) {
 
 	absolutePath := a.resolvePath(event.Common.Pid, -1, rawFilename)
 
-	log.Printf("[DEBUG] CHMOD: Pid=%d File=%s Mode=0%o",
-		event.Common.Pid, absolutePath, event.Mode)
+	// log.Printf("[DEBUG] CHMOD: Pid=%d File=%s Mode=0%o",
+	// 	event.Common.Pid, absolutePath, event.Mode)
 
 	enrichedEvt := &EnrichedEvent{
 		EventGetter:  &event,
@@ -143,7 +148,6 @@ func (a *Analyzer) resolvePath(pid uint32, fd int32, filename string) string {
 		}
 	}
 
-	// 2. Если путь уже абсолютный
 	if strings.HasPrefix(filename, "/") {
 		return filename
 	}
@@ -153,6 +157,5 @@ func (a *Analyzer) resolvePath(pid uint32, fd int32, filename string) string {
 		return filepath.Join(cwd, filename)
 	}
 
-	// 4. Fallback
 	return fmt.Sprintf("UNKNOWN/%s", filename)
 }

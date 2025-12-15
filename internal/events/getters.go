@@ -2,8 +2,82 @@ package events
 
 import (
 	"fmt"
+	"log"
 	"strings"
+	"syscall"
 )
+
+func decodeOpenFlags(flags int32) []string {
+	var res []string
+	f := int(flags)
+
+	// Проверяем режим доступа (Access Mode)
+	switch f & syscall.O_ACCMODE {
+	case syscall.O_RDONLY:
+		res = append(res, "O_RDONLY")
+	case syscall.O_WRONLY:
+		res = append(res, "O_WRONLY")
+	case syscall.O_RDWR:
+		res = append(res, "O_RDWR")
+	}
+
+	// Проверяем остальные флаги
+	if f&syscall.O_CREAT != 0 {
+		res = append(res, "O_CREAT")
+	}
+	if f&syscall.O_EXCL != 0 {
+		res = append(res, "O_EXCL")
+	}
+	if f&syscall.O_NOCTTY != 0 {
+		res = append(res, "O_NOCTTY")
+	}
+	if f&syscall.O_TRUNC != 0 {
+		res = append(res, "O_TRUNC")
+	}
+	if f&syscall.O_APPEND != 0 {
+		res = append(res, "O_APPEND")
+	}
+	if f&syscall.O_NONBLOCK != 0 {
+		res = append(res, "O_NONBLOCK")
+	}
+	if f&syscall.O_DSYNC != 0 {
+		res = append(res, "O_DSYNC")
+	}
+	if f&syscall.O_SYNC != 0 {
+		res = append(res, "O_SYNC")
+	}
+	if f&syscall.O_CLOEXEC != 0 {
+		res = append(res, "O_CLOEXEC")
+	}
+
+	return res
+}
+
+var ptraceRequests = map[uint64]string{
+	0:  "PTRACE_TRACEME",
+	1:  "PTRACE_PEEKTEXT",
+	2:  "PTRACE_PEEKDATA",
+	3:  "PTRACE_PEEKUSER",
+	4:  "PTRACE_POKETEXT",
+	5:  "PTRACE_POKEDATA",
+	6:  "PTRACE_POKEUSER",
+	7:  "PTRACE_CONT",
+	8:  "PTRACE_KILL",
+	9:  "PTRACE_SINGLESTEP",
+	16: "PTRACE_ATTACH",
+	17: "PTRACE_DETACH",
+	24: "PTRACE_SYSCALL",
+
+	0x4200: "PTRACE_SETOPTIONS",  // 16896
+	0x4201: "PTRACE_GETEVENTMSG", // 16897
+	0x4202: "PTRACE_GETSIGINFO",  // 16898
+	0x4203: "PTRACE_SETSIGINFO",
+	0x4206: "PTRACE_SEIZE",     // 16902
+	0x4207: "PTRACE_INTERRUPT", // 16903
+	0x4208: "PTRACE_LISTEN",    // 16904
+	0x420E: "PTRACE_GETREGSET", // 16910
+	0x420F: "PTRACE_SETREGSET",
+}
 
 func getCommonField(c *CommonEvent, name string) (interface{}, bool) {
 	switch name {
@@ -36,7 +110,8 @@ func (e *OpenatEvent) GetField(name string) (interface{}, bool) {
 	case "fd.name", "evt.arg.filename":
 		return BytesToString(e.Filename[:]), true
 	case "evt.arg.flags":
-		return int(e.Flags), true
+		flags := decodeOpenFlags(e.Flags)
+		return strings.Join(flags, ","), true
 	case "evt.res", "fd.num":
 		return int(e.Ret), true
 	}
@@ -55,7 +130,6 @@ func (e *ExecveEvent) GetField(name string) (interface{}, bool) {
 	case "proc.exepath", "evt.arg.filename":
 		return BytesToString(e.Filename[:]), true
 	case "proc.cmdline", "proc.args":
-		// Склеиваем аргументы в одну строку
 		args := ExtractArgs(e.Argv)
 		return strings.Join(args, " "), true
 	case "proc.env":
@@ -96,8 +170,8 @@ func (e *AcceptEvent) GetType() string {
 func (e *AcceptEvent) GetField(name string) (interface{}, bool) {
 	switch name {
 	case "fd.num", "evt.res":
-		return int(e.Ret), true // В accept возвращаемое значение - это новый FD
-	case "fd.ip", "fd.rip": // Remote IP (клиента)
+		return int(e.Ret), true
+	case "fd.ip", "fd.rip":
 		return IntToIP(e.Ip), true
 	case "fd.port", "fd.rport": // Remote Port
 		return int(Ntohs(e.Port)), true
@@ -114,6 +188,10 @@ func (e *PtraceEvent) GetType() string {
 func (e *PtraceEvent) GetField(name string) (interface{}, bool) {
 	switch name {
 	case "evt.arg.request":
+		if name, ok := ptraceRequests[e.Request]; ok {
+			log.Printf("%s", name)
+			return name, true
+		}
 		return int(e.Request), true
 	case "proc.target_pid":
 		return int(e.TargetPid), true

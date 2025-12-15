@@ -44,5 +44,4 @@ func main() {
 	<-stopper
 
 	log.Println("\nЗавершення роботи...")
-	// cleanup() викличеться автоматично завдяки defer
 }

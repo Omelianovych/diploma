@@ -1,71 +1,288 @@
 rules:
-  - name: "Detect /etc/shadow access"
+  # ===========================================================================
+  # SECTION: FILE ACCESS & CONTENTION (openat)
+  # ===========================================================================
+
+  # MITRE T1555: Credentials from Password Stores
+  - name: "Read Sensitive File"
+    event_types: ["openat"]
     severity: "CRITICAL"
-    event_types:
-      - "openat"
-    message: "Attempt to open shadow file detected"
+    message: "Process tried to open /etc/shadow or SSH keys"
     conditions:
-      - field: "fd.name"
-        operator: "="
-        value: "/etc/shadow"
+      - field: "evt.arg.filename"
+        operator: "in"
+        value: "/etc/shadow,/etc/master.passwd,/root/.ssh/id_rsa"
 
-  - name: "Detect Netcat execution"
-    severity: "WARNING"
-    event_types:
-      - "execve"
-    message: "Netcat binary executed"
+  # MITRE T1555: Directory Traversal
+  - name: "Directory Traversal Attempt"
+    event_types: ["openat"]
+    severity: "MEDIUM"
+    message: "Detected attempt to traverse directory using '../'"
     conditions:
-      - field: "proc.name"
-        operator: "="
-        value: "nc"
-
-  # - name: "Suspicious Downloader (curl)"
-  #   severity: "INFO"
-  #   event_types:
-  #     - "execve"
-  #   message: "Curl utility executed"
-  #   conditions:
-  #     - field: "proc.name"
-  #       operator: "="
-  #       value: "curl"
-
-  - name: "Detect ls -l command"
-    severity: "INFO"
-    event_types:
-      - "execve"
-    message: "Executed ls with list flag (-l)"
-    conditions:
-      - field: "proc.name"
-        operator: "="
-        value: "ls"
-      - field: "proc.cmdline"
+      - field: "evt.arg.filename"
         operator: "contains"
-        value: "-l"
-  - name: "Suspicious Network Utilities"
-    severity: "WARNING"
-    event_types:
-      - "execve"
-    message: "Suspicious network tool executed"
+        value: ".."
+      - field: "evt.res"
+        operator: "!="
+        value: "-2"
+
+  # MITRE T1611: Escape to Host (Container)
+  - name: "Container Escape via release_agent"
+    event_types: ["openat"]
+    severity: "CRITICAL"
+    message: "Attempt to modify cgroup release_agent file"
+    conditions:
+      - field: "evt.arg.filename"
+        operator: "contains"
+        value: "release_agent"
+      - field: "evt.arg.flags"
+        operator: "contains"
+        value: "O_WRONLY"
+
+  # MITRE T1070: Indicator Removal on Host
+  - name: "Clear Log Activities (Log Wiping)"
+    event_types: ["openat"]
+    severity: "HIGH"
+    message: "Log file opened with O_TRUNC flag to clear contents"
+    conditions:
+      - field: "evt.arg.filename"
+        operator: "contains"
+        value: "/var/log"
+      - field: "evt.arg.flags"
+        operator: "contains"
+        value: "O_TRUNC"
+
+  # ===========================================================================
+  # SECTION: EXECUTION & SHELLS (execve)
+  # ===========================================================================
+
+  # MITRE T1059: Command and Scripting Interpreter (Reverse Shell)
+  - name: "Netcat Reverse Shell Execution"
+    event_types: ["execve"]
+    severity: "CRITICAL"
+    message: "Netcat launched with -e flag (Reverse Shell)"
+    conditions:
+      - field: "proc.exepath"
+        operator: "contains"
+        value: "nc"
+      - field: "proc.args"
+        operator: "contains"
+        value: "-e"
+
+  # MITRE T1059: Command and Scripting Interpreter (Container Shell)
+  - name: "Interactive Shell in Container"
+    event_types: ["execve"]
+    severity: "MEDIUM"
+    message: "Shell launched inside a container (potential kubectl exec)"
+    conditions:
+      - field: "proc.exepath"
+        operator: "in"
+        value: "/bin/bash,/bin/sh,/bin/zsh"
+
+  # MITRE T1059.004: Unix Shell (Suspicious Parent)
+  - name: "Run Shell from Web/DB Process"
+    event_types: ["execve"]
+    severity: "CRITICAL"
+    message: "Shell spawned by suspicious parent (Web Server/DB)"
+    conditions:
+      - field: "proc.exepath"
+        operator: "in"
+        value: "/bin/bash,/bin/sh,/usr/bin/python3"
+      - field: "proc.pname"
+        operator: "in"
+        value: "nginx,apache2,httpd,mysqld,postgres,php-fpm,java,node"
+
+  # MITRE T1059.004: Execution from /dev/shm
+  - name: "Execution from /dev/shm"
+    event_types: ["execve"]
+    severity: "HIGH"
+    message: "Binary executed from shared memory (/dev/shm)"
+    conditions:
+      - field: "proc.exepath"
+        operator: "startswith"
+        value: "/dev/shm"
+
+  # MITRE T1611: Escape to Host (Debugfs)
+  - name: "Debugfs Launched in Container"
+    event_types: ["execve"]
+    severity: "HIGH"
+    message: "Debugfs tool launched, potential container escape attempt"
+    conditions:
+      - field: "proc.exepath"
+        operator: "contains"
+        value: "debugfs"
+
+  # MITRE T1059 System user interactive
+  - name: "System User Interactive Shell"
+    event_types: ["execve"]
+    conditions:
+      - field: "proc.uid"
+        operator: "lt"
+        value: "1000"
+      - field: "proc.exepath"
+        operator: "contains"
+        value: "sh"
+
+  # MITRE T1485: Data Destruction
+  - name: "Remove Bulk Data (Wiper Tools)"
+    event_types: ["execve"]
+    severity: "CRITICAL"
+    message: "Destructive tool executed (shred/mkfs)"
     conditions:
       - field: "proc.name"
         operator: "in"
-        value: "curl, wget, nc, ncat, netcat, ssh"
-  - name: "Insecure CHMOD 777"
+        value: "shred,mkfs"
+
+  # ===========================================================================
+  # SECTION: CREDENTIAL ACCESS & DISCOVERY (execve)
+  # ===========================================================================
+
+  # MITRE T1552.001: Credentials in Files
+  - name: "Search Private Keys (Grep/Find)"
+    event_types: ["execve"]
+    severity: "MEDIUM"
+    message: "Reconnaissance: Searching for private keys via grep"
+    conditions:
+      - field: "proc.exepath"
+        operator: "contains"
+        value: "grep"
+      - field: "proc.args"
+        operator: "contains"
+        value: "PRIVATE KEY"
+
+  # MITRE T1552: Unsecured Credentials (AWS)
+  - name: "Find AWS Credentials"
+    event_types: ["execve"]
     severity: "HIGH"
-    event_types:
-      - "chmod"
-    message: "File made world-writable/executable (0777 detected)"
+    message: "Reconnaissance: Searching for AWS credentials"
+    conditions:
+      - field: "proc.args"
+        operator: "contains"
+        value: ".aws/credentials"
+
+  # ===========================================================================
+  # SECTION: EVASION & INJECTION (memfd_create, ptrace)
+  # ===========================================================================
+
+  # MITRE T1620: Reflective Code Loading
+  - name: "Fileless Execution via memfd_create"
+    event_types: ["memfd_create"]
+    severity: "CRITICAL"
+    message: "Process created an anonymous memory file (elf loading)"
+    conditions:
+      - field: "evt.res"
+        operator: "!="
+        value: "-1"
+      - field: "proc.name"
+        operator: "not in"
+        value: "firefox,pulseaudio,pipewire,pipewire-pulse,systemd,dockerd,containerd,gnome-shell,Xorg,wayland-cursor,MainThread"
+      - field: "evt.arg.name"
+        operator: "!="
+        value: "mozilla-ipc"
+
+  # MITRE T1055.008: Process Injection (Ptrace)
+  - name: "Process Injection via PTRACE_ATTACH"
+    event_types: ["ptrace"]
+    severity: "HIGH"
+    message: "Process tried to attach to another process"
+    conditions:
+      - field: "evt.arg.request"
+        operator: "in"
+        value: "PTRACE_ATTACH,PTRACE_SEIZE"
+
+  # MITRE T1622: Debugger Evasion
+  - name: "Anti-Debug via PTRACE_TRACEME"
+    event_types: ["ptrace"]
+    severity: "LOW"
+    message: "Process called PTRACE_TRACEME (possible anti-debug technique)"
+    conditions:
+      - field: "evt.arg.request"
+        operator: "="
+        value: "PTRACE_TRACEME"
+
+  # ===========================================================================
+  # SECTION: NETWORK (connect)
+  # ===========================================================================
+
+  # MITRE T1565: Data Manipulation (Kubernetes API)
+  - name: "Contact K8S API Server"
+    event_types: ["connect"]
+    severity: "HIGH"
+    message: "Connection attempt to Kubernetes API Server default port"
+    conditions:
+      - field: "fd.port"
+        operator: "="
+        value: "6443"
+
+  # MITRE T1059: Command and Scripting Interpreter (SSH Tunneling)
+  - name: "Disallowed SSH on Non-Standard Port"
+    event_types: ["connect"]
+    severity: "MEDIUM"
+    message: "SSH process connecting to non-standard port"
+    conditions:
+      - field: "proc.name"
+        operator: "="
+        value: "ssh"
+      - field: "fd.port"
+        operator: "!="
+        value: "22"
+
+  # ===========================================================================
+  # SECTION: INBOUND NETWORK (accept) - MISSING IN YOUR LIST
+  # ===========================================================================
+
+  # MITRE T1095: Bind Shell / Non-Standard Port Listener
+  - name: "Suspicious Process Listening on Port"
+    event_types: ["accept"]
+    severity: "HIGH"
+    message: "Shell or suspicious process accepted network connection (Bind Shell)"
+    conditions:
+      - field: "proc.name"
+        operator: "in"
+        value: "bash,sh,nc,netcat,ncat,python3,perl,ruby"
+
+  # ===========================================================================
+  # SECTION: PERMISSIONS (chmod)
+  # ===========================================================================
+
+  # MITRE T1222: File Permissions Modification
+  - name: "World Writable Critical File"
+    event_types: ["chmod"]
+    severity: "HIGH"
+    message: "File made world-writable (0777)"
     conditions:
       - field: "evt.arg.mode"
         operator: "="
         value: "0777"
 
-  - name: "Fileless Execution via memfd"
-    severity: "CRITICAL"
-    event_types:
-      - "memfd_create"
-    message: "Anonymous memory file created (potential fileless malware)"
+  # MITRE T1548.001: Setuid and Setgid
+  - name: "Set SUID Bit"
+    event_types: ["chmod"]
+    severity: "MEDIUM"
+    message: "SUID bit set on file (potential privilege escalation)"
     conditions:
-      - field: "evt.res"
-        operator: "="
-        value: "27"
+      - field: "evt.arg.mode"
+        operator: "startswith"
+        value: "04"
+
+  - name: "Set SGID Bit"
+    event_types: ["chmod"]
+    severity: "MEDIUM"
+    message: "SGID bit set on file"
+    conditions:
+      - field: "evt.arg.mode"
+        operator: "startswith"
+        value: "02"
+
+  # MITRE T1222: Executable in /tmp
+  - name: "Make File Executable in /tmp"
+    event_types: ["chmod"]
+    severity: "HIGH"
+    message: "File in temporary directory made executable"
+    conditions:
+      - field: "evt.arg.filename"
+        operator: "startswith"
+        value: "/tmp"
+      - field: "evt.arg.mode"
+        operator: "in"
+        value: "0777,0755,0700"
